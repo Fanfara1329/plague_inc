@@ -10,7 +10,7 @@ def start_screen():
                 exit()
             if event.type == pg.MOUSEBUTTONDOWN:
                 return
-
+        pg.display.set_caption('Заставка')
         screen.fill('black')
         screen.blit(background_image, (0, 0))
         pg.display.flip()
@@ -19,7 +19,7 @@ def start_screen():
 def map_of_world():
     background_image = pg.image.load('world_map.jpg')
     background_image = pg.transform.scale(background_image, size)
-
+    pg.display.set_caption('Основной экран')
     screen.fill('black')
     screen.blit(background_image, (0, 0))
     pg.display.flip()
