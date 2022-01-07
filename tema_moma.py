@@ -31,7 +31,32 @@ def start_screen():
 
 def map_of_world():
     background_image = pg.image.load('world_map.jpg')
+    aus = pg.image.load("pictures/Austraalia/australia_0.png")
+    aus = pg.transform.scale(aus, (172.5, 135.8))
+    zeal = pg.image.load("pictures/New Zealand/New Zealand_0.png")
+    zeal = pg.transform.scale(zeal, (87.47, 84.57))
+    guin = pg.image.load("pictures/New Guinea/new guinea_0.png")
+    guin = pg.transform.scale(guin, (74.501, 51.428))
+    indo = pg.image.load("pictures/Indonesia/indonesia_0.png")
+    indo = pg.transform.scale(indo, (93.569, 65.14285))
+    phil = pg.image.load("pictures/Philippines/philippines_0.png")
+    phil = pg.transform.scale(phil, (47, 42.8571))
+    japan = pg.image.load("pictures/Japan/japan_0.png")
+    japan = pg.transform.scale(japan, (43.90243, 71.571428))
+    s_e = pg.image.load("pictures/S-E Asia/s-e asia_0.png")
+    s_e = pg.transform.scale(s_e, (72.28381, 162.85714))
     background_image = pg.transform.scale(background_image, size)
+    pg.display.set_caption('Основной экран')
+    screen.fill('black')
+    screen.blit(background_image, (0, 0))
+    screen.blit(aus, (750, 410))
+    screen.blit(zeal, (886, 505.5))
+    screen.blit(guin, (848, 359))
+    screen.blit(indo, (728, 331.5))
+    screen.blit(phil, (792, 288.5))
+    screen.blit(japan, (822.3, 175.4))
+    screen.blit(s_e, (723, 207.2))
+    pg.display.flip()
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -41,8 +66,6 @@ def map_of_world():
                     map_of_symptoms()
 
         pg.display.set_caption('Основной экран')
-        screen.fill('black')
-        screen.blit(background_image, (0, 0))
         pg.display.flip()
 
 
