@@ -48,6 +48,8 @@ def rendering_countries():
     ind = pg.transform.scale(ind, (82.926, 146.142))
     green = pg.image.load("pictures/Greenland/greenland_0.png")
     green = pg.transform.scale(green, (177.383, 147.857))
+    can = pg.image.load("pictures/Canada/canada_0.png")
+    can = pg.transform.scale(can, (302.882, 194.142))
 
     screen.blit(aus, (750, 410))
     screen.blit(zeal, (886, 505.5))
@@ -58,6 +60,7 @@ def rendering_countries():
     screen.blit(s_e, (717, 259))
     screen.blit(ind, (657.5, 199))
     screen.blit(green, (259.6, 22))
+    screen.blit(can, (26, 22))
 
 
 def map_of_world():
