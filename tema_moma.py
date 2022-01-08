@@ -29,50 +29,12 @@ def start_screen():
         pg.display.flip()
 
 
-def rendering_countries():
-    aus = pg.image.load("pictures/Austraalia/australia_0.png")
-    aus = pg.transform.scale(aus, (172.5, 135.8))
-    zeal = pg.image.load("pictures/New Zealand/New Zealand_0.png")
-    zeal = pg.transform.scale(zeal, (87.47, 84.57))
-    guin = pg.image.load("pictures/New Guinea/new guinea_0.png")
-    guin = pg.transform.scale(guin, (74.501, 51.428))
-    indo = pg.image.load("pictures/Indonesia/indonesia_0.png")
-    indo = pg.transform.scale(indo, (93.569, 65.142))
-    phil = pg.image.load("pictures/Philippines/philippines_0.png")
-    phil = pg.transform.scale(phil, (47, 42.857))
-    japan = pg.image.load("pictures/Japan/japan_0.png")
-    japan = pg.transform.scale(japan, (43.902, 71.571))
-    s_e = pg.image.load("pictures/S-E Asia/s-e asia_0.png")
-    s_e = pg.transform.scale(s_e, (118.847, 114.857))
-    ind = pg.image.load("pictures/India/india_0.png")
-    ind = pg.transform.scale(ind, (82.926, 146.142))
-    green = pg.image.load("pictures/Greenland/greenland_0.png")
-    green = pg.transform.scale(green, (177.383, 147.857))
-    can = pg.image.load("pictures/Canada/canada_0.png")
-    can = pg.transform.scale(can, (302.882, 194.142))
-    mad = pg.image.load("pictures/Madagascar/madagascar_0.png")
-    mad = pg.transform.scale(mad, (39.467, 47.571))
-    carb = pg.image.load("pictures/Caribbean_Islands/caribbean_0.png")
-    carb = pg.transform.scale(carb, (60.753, 29.571))
-    cent = pg.image.load("pictures/Central America/central_0.png")
-    cent = pg.transform.scale(cent, (53.215, 68.571))
-    mex = pg.image.load("pictures/Mexico/mexico_0.png")
-    mex = pg.transform.scale(mex, (111.549, 85.201))
-
-    screen.blit(aus, (750, 410))
-    screen.blit(zeal, (886, 505.5))
-    screen.blit(guin, (848, 359))
-    screen.blit(indo, (728, 331.5))
-    screen.blit(phil, (792, 288.5))
-    screen.blit(japan, (822.3, 175.4))
-    screen.blit(s_e, (717, 259))
-    screen.blit(ind, (657.5, 199))
-    screen.blit(green, (259.6, 22))
-    screen.blit(can, (26, 22))
-    screen.blit(mad, (570, 402))
-    screen.blit(carb, (197.7, 289))
-    screen.blit(cent, (165, 288))
-    screen.blit(mex, (90, 244))
+class Rendering(pg.sprite.Sprite):
+    def __init__(self, pos, name, im, con_size, *group):
+        super().__init__(*group)
+        self.name = name
+        self.image = pg.transform.scale(pg.image.load(im), con_size)
+        self.rect = self.image.get_rect().move(pos)
 
 
 class Symptoms(pg.sprite.Sprite):
@@ -90,6 +52,9 @@ def map_of_world():
     screen.fill('black')
     screen.blit(background_image, (0, 0))
     pg.display.flip()
+    for j in countries:
+        Rendering(*j, countries_group)
+
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -99,6 +64,7 @@ def map_of_world():
                     map_of_symptoms()
 
         pg.display.set_caption('Основной экран')
+        countries_group.draw(screen)
         pg.display.flip()
 
 
@@ -149,7 +115,21 @@ symptoms = [[(454, 300), 'кома', 'симптомы/кома.png'], [(454, 22
             [(664, 100), 'потение', 'симптомы/потение.png']]
 
 symptoms_group = pg.sprite.Group()
-
+countries = [[(750, 410), 'Австралия', 'pictures/Austraalia/australia_0.png', (172.5, 135.8)],
+             [(886, 505.5), 'Новая зеландия', 'pictures/New Zealand/New Zealand_0.png', (87.47, 84.57)],
+             [(848, 359), 'Новая Гвинея', 'pictures/New Guinea/new guinea_0.png', (74.501, 51.428)],
+             [(728, 331.5), 'Иднонезия', 'pictures/Indonesia/indonesia_0.png', (93.569, 65.142)],
+             [(792, 288.5), 'Филиппины', 'pictures/Philippines/philippines_0.png', (47, 42.857)],
+             [(822.3, 175.4), 'Япония', 'pictures/Japan/japan_0.png', (43.902, 71.571)],
+             [(717, 259), 'Ю.-В. Азия', 'pictures/S-E Asia/s-e asia_0.png', (118.847, 114.857)],
+             [(657.5, 199), 'Индия', 'pictures/India/india_0.png', (82.926, 146.142)],
+             [(259.6, 22), 'Гренландия', 'pictures/Greenland/greenland_0.png', (177.383, 147.857)],
+             [(26, 22), 'Канада', 'pictures/Canada/canada_0.png', (302.882, 194.142)],
+             [(570, 402), 'Мадагаскар', 'pictures/Madagascar/madagascar_0.png', (39.467, 47.571)],
+             [(197.7, 289), 'Карибы', 'pictures/Caribbean_Islands/caribbean_0.png', (60.753, 29.571)],
+             [(165, 288), 'Центр. Америка', 'pictures/Central America/central_0.png', (53.215, 68.571)],
+             [(90, 244), 'Мексика', 'pictures/Mexico/mexico_0.png', (111.549, 85.201)]]
+countries_group = pg.sprite.Group()
 start_screen()
 
 while running:
