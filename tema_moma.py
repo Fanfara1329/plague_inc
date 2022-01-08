@@ -56,6 +56,8 @@ def rendering_countries():
     carb = pg.transform.scale(carb, (60.753, 29.571))
     cent = pg.image.load("pictures/Central America/central_0.png")
     cent = pg.transform.scale(cent, (53.215, 68.571))
+    mex = pg.image.load("pictures/Mexico/mexico_0.png")
+    mex = pg.transform.scale(mex, (111.549, 85.201))
 
     screen.blit(aus, (750, 410))
     screen.blit(zeal, (886, 505.5))
@@ -70,6 +72,7 @@ def rendering_countries():
     screen.blit(mad, (570, 402))
     screen.blit(carb, (197.7, 289))
     screen.blit(cent, (165, 288))
+    screen.blit(mex, (90, 244))
 
 
 def map_of_world():
