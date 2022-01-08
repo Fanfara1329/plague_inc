@@ -44,7 +44,7 @@ def map_of_world():
     japan = pg.image.load("pictures/Japan/japan_0.png")
     japan = pg.transform.scale(japan, (43.902, 71.571))
     s_e = pg.image.load("pictures/S-E Asia/s-e asia_0.png")
-    s_e = pg.transform.scale(s_e, (72.283, 162.857))
+    s_e = pg.transform.scale(s_e, (118.847, 114.857))
     ind = pg.image.load("pictures/India/india_0.png")
     ind = pg.transform.scale(ind, (82.926, 146.142))
     background_image = pg.transform.scale(background_image, size)
@@ -57,7 +57,7 @@ def map_of_world():
     screen.blit(indo, (728, 331.5))
     screen.blit(phil, (792, 288.5))
     screen.blit(japan, (822.3, 175.4))
-    screen.blit(s_e, (723, 207.2))
+    screen.blit(s_e, (720, 260))
     screen.blit(ind, (657.5, 199))
     pg.display.flip()
     while True:
