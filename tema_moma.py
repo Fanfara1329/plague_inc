@@ -75,6 +75,14 @@ def rendering_countries():
     screen.blit(mex, (90, 244))
 
 
+class Symptoms(pg.sprite.Sprite):
+    def __init__(self, pos, name, im, *group):
+        super().__init__(*group)
+        self.name = name
+        self.image = pg.transform.scale(pg.image.load(im), (92, 80))
+        self.rect = self.image.get_rect().move(pos)
+
+
 def map_of_world():
     background_image = pg.image.load('world_map.jpg')
     background_image = pg.transform.scale(background_image, size)
@@ -97,6 +105,9 @@ def map_of_world():
 def map_of_symptoms():
     background_image = pg.image.load('map_of_symptoms.jpg')
     background_image = pg.transform.scale(background_image, size)
+    for i in symptoms:
+        Symptoms(*i, symptoms_group)
+
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -108,6 +119,7 @@ def map_of_symptoms():
         pg.display.set_caption('Симптомы')
         screen.fill('black')
         screen.blit(background_image, (0, 0))
+        symptoms_group.draw(screen)
         pg.display.flip()
 
 
@@ -115,6 +127,28 @@ pg.init()
 size = (1000, 600)
 running = True
 screen = pg.display.set_mode(size)
+symptoms = [[(454, 300), 'кома', 'симптомы/кома.png'], [(454, 220), 'отказ органов', 'симптомы/отказ органов.png'],
+            [(454, 60), 'кашель', 'симптомы/кашель.png'], [(454, 460), 'киста', 'симптомы/киста.png'],
+
+            [(383, 180), 'фиброз', 'симптомы/фиброз легких.png'], [(383, 340), 'паралич', 'симптомы/паралич.png'],
+            [(383, 100), 'пневмония', 'симптомы/пневмония.png'], [(383, 420), 'аллергия', 'симптомы/аллергия.png'],
+
+            [(524, 180), 'подавление иммунитета', 'симптомы/подавление иммунитета.png'],
+            [(524, 340), 'системная инфекция', 'симптомы/системная инфекция.png'],
+            [(524, 100), 'чихание', 'симптомы/чихание.png'],
+            [(524, 420), 'нарывы', 'симптомы/нарывы.png'],
+
+            [(313, 380), 'воспаление', 'симптомы/воспаление.png'],
+            [(313, 140), 'отек легких', 'симптомы/отек легких.png'],
+
+            [(594, 380), 'опухоли', 'симптомы/опухоли.png'], [(594, 140), 'лихорадка', 'симптомы/лихорадка.png'],
+
+            [(243, 100), 'рвота', 'симптомы/рвота.png'], [(243, 180), 'диарея', 'симптомы/диарея.png'],
+            [(243, 340), 'эпилепсия', 'симптомы/эпилепсия.png'], [(243, 420), 'паранойя', 'симптомы/паранойя.png'],
+
+            [(664, 100), 'потение', 'симптомы/потение.png']]
+
+symptoms_group = pg.sprite.Group()
 
 start_screen()
 
