@@ -29,8 +29,7 @@ def start_screen():
         pg.display.flip()
 
 
-def map_of_world():
-    background_image = pg.image.load('world_map.jpg')
+def rendering_countries():
     aus = pg.image.load("pictures/Austraalia/australia_0.png")
     aus = pg.transform.scale(aus, (172.5, 135.8))
     zeal = pg.image.load("pictures/New Zealand/New Zealand_0.png")
@@ -47,18 +46,26 @@ def map_of_world():
     s_e = pg.transform.scale(s_e, (118.847, 114.857))
     ind = pg.image.load("pictures/India/india_0.png")
     ind = pg.transform.scale(ind, (82.926, 146.142))
-    background_image = pg.transform.scale(background_image, size)
-    pg.display.set_caption('Основной экран')
-    screen.fill('black')
-    screen.blit(background_image, (0, 0))
+    green = pg.image.load("pictures/Greenland/greenland_0.png")
+    green = pg.transform.scale(green, (177.383, 147.857))
+
     screen.blit(aus, (750, 410))
     screen.blit(zeal, (886, 505.5))
     screen.blit(guin, (848, 359))
     screen.blit(indo, (728, 331.5))
     screen.blit(phil, (792, 288.5))
     screen.blit(japan, (822.3, 175.4))
-    screen.blit(s_e, (720, 260))
+    screen.blit(s_e, (717, 259))
     screen.blit(ind, (657.5, 199))
+    screen.blit(green, (259.6, 22))
+
+
+def map_of_world():
+    background_image = pg.image.load('world_map.jpg')
+    background_image = pg.transform.scale(background_image, size)
+    pg.display.set_caption('Основной экран')
+    screen.fill('black')
+    screen.blit(background_image, (0, 0))
     pg.display.flip()
     while True:
         for event in pg.event.get():
