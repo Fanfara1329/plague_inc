@@ -52,6 +52,8 @@ def rendering_countries():
     can = pg.transform.scale(can, (302.882, 194.142))
     mad = pg.image.load("pictures/Madagascar/madagascar_0.png")
     mad = pg.transform.scale(mad, (39.467, 47.571))
+    carb = pg.image.load("pictures/Caribbean_Islands/caribbean_0.png")
+    carb = pg.transform.scale(carb, (60.753, 29.571))
 
     screen.blit(aus, (750, 410))
     screen.blit(zeal, (886, 505.5))
@@ -64,6 +66,7 @@ def rendering_countries():
     screen.blit(green, (259.6, 22))
     screen.blit(can, (26, 22))
     screen.blit(mad, (570, 402))
+    screen.blit(carb, (197.7, 289))
 
 
 def map_of_world():
