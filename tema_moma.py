@@ -25,8 +25,50 @@ def start_screen():
             if event.type == pg.MOUSEBUTTONDOWN:
                 if 410 < pg.mouse.get_pos()[0] < 590 and 150 < pg.mouse.get_pos()[1] < 210:
                     map_of_world()
+                elif 360 < pg.mouse.get_pos()[0] < 640 and 220 < pg.mouse.get_pos()[1] < 280:
+                    how_to_play()
+
         pg.display.set_caption('Заставка')
         pg.display.flip()
+
+
+def how_to_play():
+    intro_text = ['', '',
+                  '          В начале игры вам нужно выбрать страну зарождения вируса. Лучше выбирать страну ',
+                  "          с выходом в море, достаточно большой территорией, с множеством соседей.", "",
+                  "          Нельзя заражать страны напрямую, на можно развивать болень. Продумывайте, на ",
+                  "          что тратить очки ДНК, и тогда болезнь будет распространяться быстрее.", "",
+                  "          Очки ДНК очень важны для развития вируса. Эти очки идут автоматически за ",
+                  "          заражение и смерти людей. Их также можно получать, щелкая появляющиеся ",
+                  "          красные и желтые пузырьки.", "",
+                  "          Наблюдайте за статистикой и процентом заражения. Вы выйграете если все умрут.",
+                  "          Не дайте болезни убить всех зараженных, прежде чем заразите всех остальных."]
+    background_image = pg.image.load('how_to_play.jpg')
+    background_image = pg.transform.scale(background_image, size)
+    screen.blit(background_image, (0, 0))
+    pg.draw.rect(screen, 'black', (45, 75, 760, 60))
+    pg.draw.rect(screen, 'black', (45, 150, 760, 60))
+    pg.draw.rect(screen, 'black', (45, 225, 760, 85))
+    pg.draw.rect(screen, 'black', (45, 325, 760, 60))
+    f1 = pg.font.Font(None, 26)
+    text_coord = 30
+    for line in intro_text:
+        string_rendered = f1.render(line, True, pg.Color('white'))
+        intro_rect = string_rendered.get_rect()
+        text_coord += 7
+        intro_rect.top = text_coord
+        intro_rect.x = 10
+        text_coord += intro_rect.height
+        screen.blit(string_rendered, intro_rect)
+
+    while True:
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                exit()
+            if event.type == pg.MOUSEBUTTONDOWN:
+                return
+            pg.display.set_caption('Как играть')
+            pg.display.flip()
 
 
 class Rendering(pg.sprite.Sprite):
@@ -51,6 +93,9 @@ def map_of_world():
     pg.display.set_caption('Основной экран')
     screen.fill('black')
     screen.blit(background_image, (0, 0))
+    f1 = pg.font.Font(None, 32)
+    text = f1.render('Пути передачи', True, (0, 0, 0))
+    screen.blit(text, (15, 558))
     pg.display.flip()
     for j in countries:
         Rendering(*j, countries_group)
