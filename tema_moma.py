@@ -50,6 +50,12 @@ def rendering_countries():
     green = pg.transform.scale(green, (177.383, 147.857))
     can = pg.image.load("pictures/Canada/canada_0.png")
     can = pg.transform.scale(can, (302.882, 194.142))
+    mad = pg.image.load("pictures/Madagascar/madagascar_0.png")
+    mad = pg.transform.scale(mad, (39.467, 47.571))
+    carb = pg.image.load("pictures/Caribbean_Islands/caribbean_0.png")
+    carb = pg.transform.scale(carb, (60.753, 29.571))
+    cent = pg.image.load("pictures/Central America/central_0.png")
+    cent = pg.transform.scale(cent, (53.215, 68.571))
 
     screen.blit(aus, (750, 410))
     screen.blit(zeal, (886, 505.5))
@@ -61,6 +67,9 @@ def rendering_countries():
     screen.blit(ind, (657.5, 199))
     screen.blit(green, (259.6, 22))
     screen.blit(can, (26, 22))
+    screen.blit(mad, (570, 402))
+    screen.blit(carb, (197.7, 289))
+    screen.blit(cent, (165, 288))
 
 
 class Symptoms(pg.sprite.Sprite):
