@@ -24,11 +24,53 @@ def start_screen():
                 exit()
             if event.type == pg.MOUSEBUTTONDOWN:
                 if 410 < pg.mouse.get_pos()[0] < 590 and 150 < pg.mouse.get_pos()[1] < 210:
-                    map_of_world()
+                    player_name()
                 elif 360 < pg.mouse.get_pos()[0] < 640 and 220 < pg.mouse.get_pos()[1] < 280:
                     how_to_play()
 
         pg.display.set_caption('Заставка')
+        pg.display.flip()
+
+
+def player_name():
+    background_image = pg.image.load('player_name.jpg')
+    background_image = pg.transform.scale(background_image, size)
+    screen.blit(background_image, (0, 0))
+    f1 = pg.font.Font(None, 60)
+    f2 = pg.font.Font(None, 40)
+    text = f1.render('Name your Plague', True, (255, 255, 255))
+    text3 = f2.render('GO!', True, 'black')
+    screen.blit(text, (300, 48))
+    screen.blit(text3, (770, 185))
+    pg.display.set_caption('')
+
+    need_input = False
+    input_text = ''
+    while True:
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                exit()
+            if need_input and event.type == pg.KEYDOWN:
+                if event.key == pg.K_RETURN:
+                    need_input = False
+                    input_text = ''
+                elif event.key == pg.K_BACKSPACE:
+                    input_text = input_text[:-1]
+                else:
+                    input_text += event.unicode
+            if event.type == pg.MOUSEBUTTONDOWN:
+                if 770 < pg.mouse.get_pos()[0] < 820 and 185 < pg.mouse.get_pos()[1] < 210:
+                    map_of_world()
+
+        keys = pg.key.get_pressed()
+
+        if keys[pg.K_1]:
+            need_input = True
+
+        text2 = f2.render(input_text, True, (255, 255, 255))
+        screen.blit(text2, (300, 188))
+        pg.display.set_caption('Основной экран')
+        countries_group.draw(screen)
         pg.display.flip()
 
 
