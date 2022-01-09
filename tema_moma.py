@@ -88,10 +88,10 @@ class Symptoms(pg.sprite.Sprite):
 
 
 def map_of_world():
-    background_image = pg.image.load('world_map.jpg')
+    background_image = pg.image.load('world_map_without_background.png')
     background_image = pg.transform.scale(background_image, size)
     pg.display.set_caption('Основной экран')
-    screen.fill('black')
+    screen.fill((30, 30, 100))
     screen.blit(background_image, (0, 0))
     f1 = pg.font.Font(None, 32)
     text = f1.render('Пути передачи', True, (0, 0, 0))
