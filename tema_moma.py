@@ -198,7 +198,9 @@ countries = [[(750, 410), 'Австралия', 'pictures/Austraalia/australia_0
              [(210.5, 310), 'Бразилия', 'pictures/Brazil/brazil_0.png', (145.011, 146.142)],
              [(200, 380), 'Перу', 'pictures/Peru/peru_0.png', (65.188, 48.428)],
              [(226, 416), 'Боливия', 'pictures/Bolivia/bolivia_0.png', (92.682, 42.857)],
-             [(233, 430), 'Аргентина', 'pictures/Argentina/argentina_0.png', (91.352, 138.428)]]
+             [(233, 430), 'Аргентина', 'pictures/Argentina/argentina_0.png', (91.352, 138.428)],
+             [(433, 368), 'Южная Африка', 'pictures/South Africa/south_0.png', (170.731, 123.428)],
+             [(510, 408), 'Ботсвана', 'pictures/Botswana/botswana_0.png', (34.146, 37.285)]]
 
 countries_group = pg.sprite.Group()
 symptoms_group = pg.sprite.Group()
