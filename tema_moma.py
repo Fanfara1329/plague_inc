@@ -46,11 +46,14 @@ def how_to_play():
     background_image = pg.image.load('how_to_play.jpg')
     background_image = pg.transform.scale(background_image, size)
     screen.blit(background_image, (0, 0))
+    pg.draw.rect(screen, 'black', (0, 550, 270, 40))
+    f1 = pg.font.Font(None, 26)
+    text = f1.render('Вернутся на главный экран', True, (255, 255, 255))
+    screen.blit(text, (15, 558))
     pg.draw.rect(screen, 'black', (45, 75, 760, 60))
     pg.draw.rect(screen, 'black', (45, 150, 760, 60))
     pg.draw.rect(screen, 'black', (45, 225, 760, 85))
     pg.draw.rect(screen, 'black', (45, 325, 760, 60))
-    f1 = pg.font.Font(None, 26)
     text_coord = 30
     for line in intro_text:
         string_rendered = f1.render(line, True, pg.Color('white'))
@@ -66,7 +69,8 @@ def how_to_play():
             if event.type == pg.QUIT:
                 exit()
             if event.type == pg.MOUSEBUTTONDOWN:
-                return
+                if 0 < pg.mouse.get_pos()[0] < 270 and 550 < pg.mouse.get_pos()[1] < 590:
+                    start_screen()
             pg.display.set_caption('Как играть')
             pg.display.flip()
 
@@ -87,12 +91,25 @@ class Symptoms(pg.sprite.Sprite):
         self.rect = self.image.get_rect().move(pos)
 
 
+class Aircraft(pg.sprite.Sprite):
+    destinations = [(), (), (), ()]  # порты самолетов; столько же, сколько и стран
+    image = pg.transform.scale(pg.image.load('aircraft.png'), (90, 90))
+
+    def __init__(self, pos, des, *group):
+        super().__init__(*group)
+        self.pos = pos
+        self.image = Aircraft.image
+        self.destination = des
+
+
 def map_of_world():
     background_image = pg.image.load('world_map_without_background.png')
     background_image = pg.transform.scale(background_image, size)
     pg.display.set_caption('Основной экран')
     screen.fill((30, 30, 100))
     screen.blit(background_image, (0, 0))
+    pg.draw.rect(screen, 'grey', (0, 550, 205, 45))
+    pg.draw.rect(screen, 'white', (0, 550, 200, 40))
     f1 = pg.font.Font(None, 32)
     text = f1.render('Пути передачи', True, (0, 0, 0))
     screen.blit(text, (15, 558))
@@ -103,8 +120,8 @@ def map_of_world():
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 exit()
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_w:
+            if event.type == pg.MOUSEBUTTONDOWN:
+                if 0 < pg.mouse.get_pos()[0] < 200 and 550 < pg.mouse.get_pos()[1] < 590:
                     map_of_symptoms()
 
         pg.display.set_caption('Основной экран')
@@ -115,6 +132,12 @@ def map_of_world():
 def map_of_symptoms():
     background_image = pg.image.load('map_of_symptoms.jpg')
     background_image = pg.transform.scale(background_image, size)
+    screen.blit(background_image, (0, 0))
+    pg.draw.rect(screen, 'grey', (0, 550, 155, 45))
+    pg.draw.rect(screen, 'white', (0, 550, 150, 40))
+    f1 = pg.font.Font(None, 32)
+    text = f1.render('Карта мира', True, (0, 0, 0))
+    screen.blit(text, (15, 558))
     for i in symptoms:
         Symptoms(*i, symptoms_group)
 
@@ -122,13 +145,11 @@ def map_of_symptoms():
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 exit()
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_s:
+            if event.type == pg.MOUSEBUTTONDOWN:
+                if 0 < pg.mouse.get_pos()[0] < 150 and 550 < pg.mouse.get_pos()[1] < 590:
                     map_of_world()
 
         pg.display.set_caption('Симптомы')
-        screen.fill('black')
-        screen.blit(background_image, (0, 0))
         symptoms_group.draw(screen)
         pg.display.flip()
 
