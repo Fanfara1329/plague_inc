@@ -293,7 +293,9 @@ countries = [[(750, 410), 'Австралия', 'pictures/Austraalia/australia_0
              [(498, 279), 'Судан', 'pictures/Sudan/sudan_0.png', (79.379, 92.142)],
              [(494, 258), 'Египет', 'pictures/Egypt/egypt_0.png', (60.753, 57.428)],
              [(473, 259), 'Ливия', 'pictures/Libya/libya_0.png', (53.215, 52.285)],
-             [(453, 286), 'Цент. Африка', 'pictures/Central Africa/central africa_0.png', (84.7, 87.428)]]
+             [(453, 286), 'Цент. Африка', 'pictures/Central Africa/central africa_0.png', (84.7, 87.428)],
+             [(394, 284), 'Запад. Африка', 'pictures/West Africa/west africa_0.png', (87.361, 75.857)],
+             [(393, 249), 'Монако', 'pictures/Monaco/monaco_0.png', (59.423, 75.428)]]
 
 countries_group = pg.sprite.Group()
 symptoms_group = pg.sprite.Group()
