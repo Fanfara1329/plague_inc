@@ -1,4 +1,5 @@
 import pygame as pg
+import random
 
 
 def start_screen():
@@ -162,31 +163,39 @@ class Aircraft(pg.sprite.Sprite):
 
 
 def map_of_world():
+    pg.time.set_timer(aircraft_fly_event, 6000)
+    pg.time.set_timer(aircraft_fly_event, 6000)
     background_image = pg.image.load('world_map_without_background.png')
     background_image = pg.transform.scale(background_image, size)
     pg.display.set_caption('Основной экран')
     f1 = pg.font.Font(None, 32)
     text = f1.render('Пути передачи', True, (0, 0, 0))
+    pg.display.set_caption('Основной экран')
     pg.display.flip()
     for j in countries:
         Rendering(*j, countries_group)
+
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 exit()
             if event.type == pg.MOUSEBUTTONDOWN:
-                for ship in aircraft_group.sprites():
-                    ship.set_target((100, 200))
                 if 0 < pg.mouse.get_pos()[0] < 200 and 550 < pg.mouse.get_pos()[1] < 590:
                     map_of_symptoms()
 
-        pg.display.set_caption('Основной экран')
+            if event.type == aircraft_fly_event:
+                print('pop')
+                for air in aircraft_group:
+                    air.set_target(random.choice(destinations))
+
         aircraft_group.update()
         screen.fill((30, 30, 100))
         screen.blit(background_image, (0, 0))
+
         pg.draw.rect(screen, 'grey', (0, 550, 205, 45))
         pg.draw.rect(screen, 'white', (0, 550, 200, 40))
         screen.blit(text, (15, 558))
+
         countries_group.draw(screen)
         for i in destinations:
             pg.draw.circle(screen, 'red', i, 2)
@@ -264,7 +273,6 @@ symptoms = [[(384, 300), 'кома', 'симптомы/кома.png'],
             [(664, 220), 'некроз', 'симптомы/некроз.png'],
             [(664, 300), 'геморрагический шок', 'симптомы/геморрагический шок.png'],
             [(664, 460), 'анемия', 'симптомы/анемия.png']]
-
 countries = [[(750, 410), 'Австралия', 'pictures/Austraalia/australia_0.png', (172.5, 135.8)],
              [(886, 505.5), 'Новая Зеландия', 'pictures/New Zealand/New Zealand_0.png', (87.47, 84.57)],
              [(848, 359), 'Новая Гвинея', 'pictures/New Guinea/new guinea_0.png', (74.501, 51.428)],
@@ -315,6 +323,7 @@ destinations = [(98, 80), (273, 168), (167, 147), (201, 75), (213, 53), (294, 49
                 (522, 404), (554, 414), (559, 355), (529, 326), (492, 328), (135, 204),
                 (496, 281), (524, 284), (535, 313), (593, 422), (688, 308), (708, 233), (692, 301), (756, 296),
                 (759, 372), (803, 365), (884, 382), (821, 455), (875, 486), (947, 534)]
+aircraft_fly_event = pg.USEREVENT + 1
 start_screen()
 
 while running:
