@@ -10,15 +10,15 @@ def start_screen():
     f1 = pg.font.Font(None, 60)
     text1 = f1.render('Играть', True, (0, 0, 0))
     text2 = f1.render('Как играть', True, 'black')
-    text3 = f1.render('Прохождение', True, 'black')
+    text3 = f1.render('Рекорды', True, 'black')
 
     pg.draw.rect(screen, 'white', (410, 150, 180, 60))
     pg.draw.rect(screen, 'white', (360, 220, 280, 60))
-    pg.draw.rect(screen, 'white', (335, 290, 330, 60))
+    pg.draw.rect(screen, 'white', (390, 290, 230, 60))
 
     screen.blit(text1, (430, 160))
     screen.blit(text2, (390, 230))
-    screen.blit(text3, (355, 300))
+    screen.blit(text3, (410, 300))
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -308,7 +308,25 @@ countries = [[(750, 410), 'Австралия', 'pictures/Austraalia/australia_0
              [(453, 286), 'Цент. Африка', 'pictures/Central Africa/central africa_0.png', (84.7, 87.428)],
              [(394, 284), 'Запад. Африка', 'pictures/West Africa/west africa_0.png', (87.361, 75.857)],
              [(393, 249), 'Монако', 'pictures/Monaco/monaco_0.png', (59.423, 75.428)],
-             [(423, 239), 'Алжир', 'pictures/Algeria/algeria_0.png', (63.858, 72.429)]]
+             [(423, 239), 'Алжир', 'pictures/Algeria/algeria_0.png', (63.858, 72.429)],
+             [(682, 145), 'Китай', 'pictures/China/сhina_0.png', (164.079, 142.285)],
+             [(787, 204), 'Корея', 'pictures/Korea/korea_0.png', (38.137, 42)],
+             [(508, 22), 'Россия', 'pictures/Russia/russia_0.png', (400, 184.285)],
+             [(500, 117), 'Финляндия', 'pictures/Finland/finland_0.png', (24.83, 59.142)],
+             [(465, 115), 'Швеция', 'pictures/Sweden/sweden_0.png', (56.319, 72.428)],
+             [(454, 120), 'Норвегия', 'pictures/Norway/norway_0.png', (41.241, 54)],
+             [(414.8, 164.5), 'Англия', 'pictures/England/england_0.png', (45.232, 45)],
+             [(418, 218), 'Испания', 'pictures/Spain/spain_0.png', (44.345, 36.428)],
+             [(450, 219), 'Италия', 'pictures/Italy/italy_0.png', (52.771, 30)],
+             [(429, 192), 'Франция', 'pictures/France/france_0.png', (64.301, 38.142)],
+             [(459, 173), 'Германия', 'pictures/Germany/germany_0.png', (59.866, 46.285)],
+             [(478, 215), 'Балканы', 'pictures/Balkans/balkans_0.png', (63.414, 40.714)],
+             [(490, 200), 'Цент. Европа', 'pictures/Central Europe/central_europe_0.png', (74.501, 37.714)],
+             [(518, 233), 'Турция', 'pictures/Turkey/turkey_0.png', (50.554, 21.428)],
+             [(502, 153), 'Прибалтика', 'pictures/Baltic states/baltic_states_0.png', (68.736, 77.571)],
+             [(520.7, 160), 'Польша', 'pictures/Poland/poland_0.png', (83.813, 68.571)],
+             [(555, 164), 'Украина', 'pictures/Ukraine/ukraine_0.png', (86.917, 53.142)],
+             [(557, 272), 'Сауд. Аравия', 'pictures/Saudi Arabia/saudi_arabia_0.png', (74.057, 57)]]
 
 countries_group = pg.sprite.Group()
 symptoms_group = pg.sprite.Group()
