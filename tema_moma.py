@@ -56,6 +56,7 @@ def player_name():
                     input_text = ''
                 elif event.key == pg.K_BACKSPACE:
                     input_text = input_text[:-1]
+                    print(input_text)
                 else:
                     input_text += event.unicode
             if event.type == pg.MOUSEBUTTONDOWN:
@@ -68,9 +69,11 @@ def player_name():
             need_input = True
 
         text2 = f2.render(input_text, True, (255, 255, 255))
-        screen.blit(text2, (300, 188))
         pg.display.set_caption('Основной экран')
-        countries_group.draw(screen)
+        screen.blit(background_image, (0, 0))
+        screen.blit(text, (300, 48))
+        screen.blit(text3, (770, 185))
+        screen.blit(text2, (300, 188))
         pg.display.flip()
 
 
@@ -296,7 +299,8 @@ countries = [[(750, 410), 'Австралия', 'pictures/Austraalia/australia_0
              [(473, 259), 'Ливия', 'pictures/Libya/libya_0.png', (53.215, 52.285)],
              [(453, 286), 'Цент. Африка', 'pictures/Central Africa/central africa_0.png', (84.7, 87.428)],
              [(394, 284), 'Запад. Африка', 'pictures/West Africa/west africa_0.png', (87.361, 75.857)],
-             [(393, 249), 'Монако', 'pictures/Monaco/monaco_0.png', (59.423, 75.428)]]
+             [(393, 249), 'Монако', 'pictures/Monaco/monaco_0.png', (59.423, 75.428)],
+             [(423, 239), 'Алжир', 'pictures/Algeria/algeria_0.png', (63.858, 72.429)]]
 
 countries_group = pg.sprite.Group()
 symptoms_group = pg.sprite.Group()
