@@ -326,12 +326,20 @@ countries = [[(750, 410), 'Австралия', 'pictures/Austraalia/australia_0
              [(502, 153), 'Прибалтика', 'pictures/Baltic states/baltic_states_0.png', (68.736, 77.571)],
              [(520.7, 160), 'Польша', 'pictures/Poland/poland_0.png', (83.813, 68.571)],
              [(555, 164), 'Украина', 'pictures/Ukraine/ukraine_0.png', (86.917, 53.142)],
-             [(557, 272), 'Сауд. Аравия', 'pictures/Saudi Arabia/saudi_arabia_0.png', (74.057, 57)]]
+             [(557, 272), 'Сауд. Аравия', 'pictures/Saudi Arabia/saudi_arabia_0.png', (74.057, 57)],
+             [(534, 263), 'Ближ. Восток', 'pictures/Middle East/middle_east_0.png', (64.301, 33.857)],
+             [(534, 245), 'Ирак', 'pictures/Iraq/iraq_0.png', (66.962, 30)],
+             [(565, 245), 'Иран', 'pictures/Iran/iran_0.png', (64.301, 41.571)],
+             [(605, 253), 'Пакистан', 'pictures/Pakistan/pakistan_0.png', (62.527, 39.857)],
+             [(617, 245), 'Афганистан', 'pictures/Afghanistan/afghanistan_0.png', (86.031, 48.857)],
+             [(588, 188), 'Казахстан', 'pictures/Kazakhstan/kazakhstan_0.png', (110.864, 75)],
+             [(624, 202), 'Монголия', 'pictures/Mongolia/mongolia_0.png', (73.17, 64.285)],
+             [(550, 206), 'Центю Азия', 'pictures/Central Asia/central_asia_0.png', (83.37, 62.142)]]
 
 countries_group = pg.sprite.Group()
 symptoms_group = pg.sprite.Group()
 aircraft_group = pg.sprite.Group(Aircraft((10, 10)), Aircraft((600, 500)))
-count_people = {'Австралия': '22 685 143', 'Новая Зеландия': '5 112 300 чел', 'Новая Гвинея': '8 776 096',
+count_people = {'Австралия': ['22 685 143'], 'Новая Зеландия': '5 112 300 чел', 'Новая Гвинея': '8 776 096',
                 'Иднонезия': '271 349 889', 'Филиппины': '109 035 343', 'Япония': '125 552 000 ',
                 'Ю.-В. Азия': '655 298 044', 'Индия': '1 381 790 000', 'Гренландия': '56 770', 'Канада': '38 246 108',
                 'Мадагаскар': '28 427 328', 'Карибы': '42 000 000', 'Центр. Америка': '4 745 000',
