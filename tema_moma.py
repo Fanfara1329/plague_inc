@@ -182,9 +182,10 @@ class Symptoms(pg.sprite.Sprite):
 
 
 class Aircraft(pg.sprite.Sprite):
-    image = pg.transform.scale(pg.image.load('aircraft.png'), (20, 20))
+    image = pg.transform.scale(pg.image.load('aircraft_ru.png'), (20, 20))
 
     def __init__(self, pos, *group):
+
         super().__init__(*group)
         self.pos = pos
         self.image = Aircraft.image
@@ -211,7 +212,6 @@ class Aircraft(pg.sprite.Sprite):
 
 def map_of_world():
     pg.time.set_timer(aircraft_fly_event, 10000)
-    pg.time.set_timer(aircraft_fly_event, 6000)
     background_image = pg.image.load('world_map_without_background.png')
     background_image = pg.transform.scale(background_image, size)
     pg.display.set_caption('Основной экран')
@@ -232,7 +232,20 @@ def map_of_world():
 
             if event.type == aircraft_fly_event:
                 for air in aircraft_group:
-                    air.set_target(random.choice(destinations))
+                    x = random.choice(destinations)
+                    if air.pos[0] > x[0] and air.pos[1] > x[1]:
+                        air.image = pg.transform.scale(pg.image.load('aircraft_lu.png'), (20, 20))
+                    elif air.pos[0] > x[0] and air.pos[1] < x[1]:
+                        air.image = pg.transform.scale(pg.image.load('aircraft_ld.png'), (20, 20))
+                    elif air.pos[0] < x[0] and air.pos[1] < x[1]:
+                        air.image = pg.transform.scale(pg.image.load('aircraft_rd.png'), (20, 20))
+                    elif air.pos[0] < x[0] and air.pos[1] > x[1]:
+                        air.image = pg.transform.scale(pg.image.load('aircraft_ru.png'), (20, 20))
+                    x = list(x)
+                    x[0] -= 10
+                    x[1] -= 10
+                    x = tuple(x)
+                    air.set_target(x)
 
         aircraft_group.update()
         screen.fill((30, 30, 100))
@@ -385,7 +398,7 @@ list_of_buy = [1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 
 countries_group = pg.sprite.Group()
 symptoms_group = pg.sprite.Group()
-aircraft_group = pg.sprite.Group(Aircraft((10, 10)), Aircraft((600, 500)))
+
 count_people = {'Австралия': ['22 685 143'], 'Новая Зеландия': '5 112 300 чел', 'Новая Гвинея': '8 776 096',
                 'Иднонезия': '271 349 889', 'Филиппины': '109 035 343', 'Япония': '125 552 000 ',
                 'Ю.-В. Азия': '655 298 044', 'Индия': '1 381 790 000', 'Гренландия': '56 770', 'Канада': '38 246 108',
@@ -402,6 +415,7 @@ destinations = [(98, 80), (273, 168), (167, 147), (201, 75), (213, 53), (294, 49
                 (522, 404), (554, 414), (559, 355), (529, 326), (492, 328), (135, 204),
                 (496, 281), (524, 284), (535, 313), (593, 422), (688, 308), (708, 233), (692, 301), (756, 296),
                 (759, 372), (803, 365), (884, 382), (821, 455), (875, 486), (947, 534)]
+aircraft_group = pg.sprite.Group(Aircraft(random.choice(destinations)), Aircraft(random.choice(destinations)))
 aircraft_fly_event = pg.USEREVENT + 1
 start_screen()
 
