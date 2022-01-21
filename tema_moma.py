@@ -157,7 +157,8 @@ def how_to_play():
             pg.display.flip()
 
 
-class Rendering(pg.sprite.Sprite):
+class Countries(pg.sprite.Sprite):
+
     def __init__(self, pos, name, im, con_size, *group):
         super().__init__(*group)
         self.speed = 0
@@ -173,9 +174,7 @@ class Rendering(pg.sprite.Sprite):
         if args and args[0].type == pg.MOUSEBUTTONDOWN and args[0].button == 1 and \
                 self.rect.collidepoint(args[0].pos):
             if self.mask.get_at(local_pos):
-                text2 = f2.render(self.name, True, (255, 255, 255))
-                screen.blit(text2, (0, 0))
-                pg.display.update()
+                return self.name
 
 
 class Symptoms(pg.sprite.Sprite):
@@ -294,11 +293,13 @@ def map_of_world(a=False):
 
     f1 = pg.font.Font(None, 32)
     text = f1.render('Пути передачи', True, (0, 0, 0))
+    a = ''
+
     pg.display.set_caption('Основной экран')
     pg.display.flip()
 
     for j in countries:
-        Rendering(*j, countries_group)
+        Countries(*j, countries_group)
 
     while True:
         for event in pg.event.get():
@@ -309,7 +310,10 @@ def map_of_world(a=False):
                 if 0 < pg.mouse.get_pos()[0] < 200 and 550 < pg.mouse.get_pos()[1] < 590:
                     map_of_symptoms()
             if event.type == pg.MOUSEBUTTONDOWN:
-                countries_group.update(event)
+                for i in countries_group:
+                    i.update(event)
+                    if i.update(event):
+                        a = i.update(event)
 
             if event.type == aircraft_fly_event:
                 for air in aircraft_group:
@@ -333,10 +337,11 @@ def map_of_world(a=False):
         aircraft_group.update()
         screen.fill((30, 30, 100))
         screen.blit(background_image, (0, 0))
-
+        text_name = f1.render(a, True, (0, 0, 0))
         pg.draw.rect(screen, 'grey', (0, 550, 205, 45))
         pg.draw.rect(screen, 'white', (0, 550, 200, 40))
         screen.blit(text, (15, 558))
+        screen.blit(text_name, (0, 0))
 
         countries_group.draw(screen)
         for i in destinations:
