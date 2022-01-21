@@ -177,38 +177,38 @@ class Countries(pg.sprite.Sprite):
 
 
 class Symptoms(pg.sprite.Sprite):
-    neighbors = {'Тошнота': [17],
-                 'Рвота': [25, 18, 14],
-                 'Диарея': [17, 14, 26],
-                 'Дизентерия': [18, 27],
-                 'Кашель': [7, 11],
-                 'Пневмония': [5, 14, 3],
-                 'Отек легких': [17, 18, 7, 5],
-                 'Фиброз легких': [14, 2, 7],
-                 'Чиханье': [3, 16, 9],
-                 'Лихорадка': [11, 9, 21, 22],
-                 'Подавление иммунитета': [2, 11, 16],
-                 'Сыпь': [21],
-                 'Потение': [29, 22, 16],
-                 'Поражение кожи': [21, 30, 16],
-                 'Некроз': [22, 31],
-                 'Бессонница': [20],
-                 'Паранойя': [28, 13, 19],
-                 'Эпилепсия': [20, 13, 27],
-                 'Невменяемость': [19, 26],
-                 'Киста': [8, 12],
-                 'Аллергия': [4, 13, 6],
-                 'Воспаление': [20, 19, 8, 6],
-                 'Паралич': [8, 13, 1],
-                 'Нарывы': [4, 15, 10],
-                 'Опухоли': [12, 10, 24, 23],
-                 'Системная инфекция': [12, 15, 1],
-                 'Анемия': [24],
-                 'Гемофилия': [15, 0, 23],
-                 'Внутреннее кровотечение': [15, 24, 31],
-                 'Геморрагический шок': [30, 23],
-                 'Отказ органов': [1, 9, 5],
-                 'Кома': [6, 10, 2]
+    neighbors = {'Тошнота': [17, 0, 3],
+                 'Рвота': [25, 18, 14, 0, 4],
+                 'Диарея': [17, 14, 26, 0, 5],
+                 'Дизентерия': [18, 27, 0, 8],
+                 'Кашель': [7, 11, 0, 3],
+                 'Пневмония': [5, 14, 3, 0, 4],
+                 'Отек легких': [17, 18, 7, 5, 0, 5],
+                 'Фиброз легких': [14, 2, 7, 0, 7],
+                 'Чиханье': [3, 16, 9, 0, 4],
+                 'Лихорадка': [11, 9, 21, 22, 0, 5],
+                 'Подавление иммунитета': [2, 11, 16, 0, 7],
+                 'Сыпь': [21, 0, 3],
+                 'Потение': [29, 22, 16, 0, 4],
+                 'Поражение кожи': [21, 30, 16, 0, 5],
+                 'Некроз': [22, 31, 0, 8],
+                 'Бессонница': [20, 0, 3],
+                 'Паранойя': [28, 13, 19, 0, 4],
+                 'Эпилепсия': [20, 13, 27, 0, 5],
+                 'Невменяемость': [19, 26, 0, 9],
+                 'Киста': [8, 12, 0, 4],
+                 'Аллергия': [4, 13, 6, 0, 4],
+                 'Воспаление': [20, 19, 8, 6, 0, 5],
+                 'Паралич': [8, 13, 1, 0, 8],
+                 'Нарывы': [4, 15, 10, 0, 4],
+                 'Опухоли': [12, 10, 24, 23, 0, 5],
+                 'Системная инфекция': [12, 15, 1, 0, 7],
+                 'Анемия': [24, 0, 3],
+                 'Гемофилия': [15, 0, 23, 0, 4],
+                 'Внутреннее кровотечение': [15, 24, 31, 0, 5],
+                 'Геморрагический шок': [30, 23, 0, 9],
+                 'Отказ органов': [1, 9, 5, 0, 10],
+                 'Кома': [6, 10, 2, 0, 10]
                  }
 
     def __init__(self, pos, name, im, num, *group):
@@ -220,12 +220,28 @@ class Symptoms(pg.sprite.Sprite):
         self.rect = self.image.get_rect().move(pos)
 
     def update(self, *args):
+        f1 = pg.font.Font(None, 70)
+        f2 = pg.font.Font(None, 45)
+        dog_surf = pg.image.load('dna_one.png')
+        flip = pg.transform.scale(
+            dog_surf, (100, 100))
         if args and args[0].type == pg.MOUSEBUTTONDOWN and \
                 self.rect.collidepoint(args[0].pos):
-            list_of_buy[self.ind] = 1
-            for _ in self.neighbors[self.name.capitalize()]:
-                list_of_buy[_] = 1
-                Symptoms(*symptoms[_], symptoms_group)
+
+            pg.draw.rect(screen, 'black', (785, 200, 200, 200))
+            text = f1.render(f'-{str(self.neighbors[self.name.capitalize()][-1])}', True, 'white')
+            screen.blit(flip, (800, 240))
+            screen.blit(text, (890, 260))
+            pg.draw.rect(screen, 'white', (800, 350, 170, 40))
+            text2 = f2.render('Купить', True, 'black')
+            screen.blit(text2, (830, 357))
+        if args and args[0].type == pg.MOUSEBUTTONDOWN:
+            if 785 < pg.mouse.get_pos()[0] < 985 and 200 < pg.mouse.get_pos()[1] < 400:
+                print(self)
+                list_of_buy[self.ind] = 1
+                for _ in self.neighbors[self.name.capitalize()][:-2]:
+                    list_of_buy[_] = 1
+                    Symptoms(*symptoms[_], symptoms_group)
 
 
 class Aircraft(pg.sprite.Sprite):
@@ -329,7 +345,7 @@ def map_of_world(a=False):
     cur = con.cursor()
     # cur.execute("""INSERT INTO point(name) VALUES(?)""", (a,))
     con.commit()
-    pg.time.set_timer(aircraft_fly_event, 1000)
+    pg.time.set_timer(aircraft_fly_event, 12000)
 
     background_image = pg.image.load('world_map_without_background.png')
     background_image = pg.transform.scale(background_image, size)
@@ -361,7 +377,7 @@ def map_of_world(a=False):
                 exit()
             if event.type == pg.MOUSEBUTTONDOWN:
                 if 0 < pg.mouse.get_pos()[0] < 200 and 550 < pg.mouse.get_pos()[1] < 590:
-                    map_of_symptoms()
+                    map_of_symptoms(count)
             if event.type == pg.MOUSEBUTTONDOWN:
                 for _ in countries_group:
                     _.update(event)
@@ -402,10 +418,13 @@ def map_of_world(a=False):
         pg.display.flip()
 
 
-def map_of_symptoms():
+def map_of_symptoms(a):
+    f1 = pg.font.Font(None, 60)
+    text_dna = f1.render(f'-{a}', True, 'blue')
     background_image = pg.image.load('map_of_symptoms.jpg')
     background_image = pg.transform.scale(background_image, size)
     screen.blit(background_image, (0, 0))
+    screen.blit(text_dna, (60, 17))
     pg.draw.rect(screen, 'grey', (0, 550, 155, 45))
     pg.draw.rect(screen, 'white', (0, 550, 150, 40))
     pg.draw.rect(screen, 'black', (785, 200, 200, 200))
