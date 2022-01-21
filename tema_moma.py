@@ -123,6 +123,7 @@ def how_to_play():
 class Rendering(pg.sprite.Sprite):
     def __init__(self, pos, name, im, con_size, *group):
         super().__init__(*group)
+        self.speed = 0
         self.name = name
         self.image = pg.transform.scale(pg.image.load(im), con_size)
         self.rect = self.image.get_rect().move(pos)
@@ -166,7 +167,6 @@ class Symptoms(pg.sprite.Sprite):
                  'Геморрагический шок': [30, 23],
                  'Отказ органов': [1, 9, 5],
                  'Кома': [6, 10, 2]
-
                  }
 
     def __init__(self, pos, name, im, num, *group):
@@ -214,20 +214,47 @@ class Aircraft(pg.sprite.Sprite):
         self.rect.topleft = list(int(v) for v in self.pos)
 
 
+class DNA(pg.sprite.Sprite):
+    image = [pg.transform.scale(pg.image.load('dna.png'), (40, 40)),
+             pg.transform.scale(pg.image.load('spiral.png'), (40, 40))]
+    price = 2
+
+    def __init__(self, pos, ind, *group):
+        super().__init__(*group)
+        self.pos = pos
+        self.image = DNA.image[ind]
+        self.rect = self.image.get_rect()
+        self.rect = self.image.get_rect().move(pos)
+
+    def update(self, *args):
+        if args and args[0].type == pg.MOUSEBUTTONDOWN and \
+                self.rect.collidepoint(args[0].pos):
+            self.kill()
+            pg.time.set_timer(DNA_event, 5000, loops=1)
+
+
+def moves():
+    DNA(random.choice(destinations), 0, dna_group)
+
+
 def map_of_world():
-    pg.time.set_timer(aircraft_fly_event, 10000)
+    pg.time.set_timer(aircraft_fly_event, 13000)
+
     background_image = pg.image.load('world_map_without_background.png')
     background_image = pg.transform.scale(background_image, size)
     pg.display.set_caption('Основной экран')
+
     f1 = pg.font.Font(None, 32)
     text = f1.render('Пути передачи', True, (0, 0, 0))
     pg.display.set_caption('Основной экран')
     pg.display.flip()
+
     for j in countries:
         Rendering(*j, countries_group)
 
     while True:
         for event in pg.event.get():
+            dna_group.update(event)
             if event.type == pg.QUIT:
                 exit()
             if event.type == pg.MOUSEBUTTONDOWN:
@@ -248,10 +275,12 @@ def map_of_world():
                     elif air.pos[0] < x[0] and air.pos[1] > x[1]:
                         air.image = pg.transform.scale(pg.image.load('aircraft_ru.png'), (20, 20))
                     x = list(x)
-                    x[0] -= 10
-                    x[1] -= 10
+                    x[0], x[1] = x[0] - 10, x[1] - 10
                     x = tuple(x)
                     air.set_target(x)
+
+            if event.type == DNA_event:
+                moves()
 
         aircraft_group.update()
         screen.fill((30, 30, 100))
@@ -264,7 +293,9 @@ def map_of_world():
         countries_group.draw(screen)
         for i in destinations:
             pg.draw.circle(screen, 'red', i, 2)
+
         aircraft_group.draw(screen)
+        dna_group.draw(screen)
         pg.display.flip()
 
 
@@ -401,9 +432,10 @@ countries = [[(750, 410), 'Австралия', 'pictures/Austraalia/australia_0
              [(624, 202), 'Монголия', 'pictures/Mongolia/mongolia_0.png', (73.17, 64.285)],
              [(550, 206), 'Цент. Азия', 'pictures/Central Asia/central_asia_0.png', (83.37, 62.142)]]
 list_of_buy = [1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0]
-
 countries_group = pg.sprite.Group()
 symptoms_group = pg.sprite.Group()
+dna_group = pg.sprite.Group(DNA((100, 100), 1), DNA((500, 200), 0))
+
 count_people = {'Австралия': ['22 685 143'], 'Новая Зеландия': ['5 112 300 чел'], 'Новая Гвинея': ['8 776 096'],
                 'Иднонезия': ['271 349 889'], 'Филиппины': ['109 035 343'], 'Япония': ['125 552 000 '],
                 'Ю.-В. Азия': ['655 298 044'], 'Индия': ['1 381 790 000'], 'Гренландия': ['56 770'],
@@ -424,13 +456,20 @@ count_people = {'Австралия': ['22 685 143'], 'Новая Зеланди
                 'Пакистан': [''], 'Афганистан': [''],
                 'Казахстан': [''], 'Монголия': [''], 'Цент. Азия': ['']}
 destinations = [(98, 80), (273, 168), (167, 147), (201, 75), (213, 53), (294, 49), (349, 120), (336, 385), (268, 436),
-                (255, 465), (257, 523), (491, 72), (503, 434), (528, 430),
-                (202, 247), (269, 199), (120, 269), (151, 305), (194, 340), (215, 301), (230, 370), (273, 394),
-                (522, 404), (554, 414), (559, 355), (529, 326), (492, 328), (135, 204),
-                (496, 281), (524, 284), (535, 313), (593, 422), (688, 308), (708, 233), (692, 301), (756, 296),
-                (759, 372), (803, 365), (884, 382), (821, 455), (875, 486), (947, 534)]
+                (255, 465), (257, 523), (491, 72), (503, 434), (528, 430), (202, 247), (269, 199), (120, 269),
+                (151, 305), (194, 340), (215, 301), (230, 370), (273, 394), (522, 404), (554, 414), (559, 355),
+                (529, 326), (492, 328), (135, 204), (496, 281), (524, 284), (535, 313), (593, 422), (688, 308),
+                (708, 233), (692, 301), (756, 296), (759, 372), (803, 365), (884, 382), (821, 455), (875, 486),
+                (947, 534), (415, 284), (495, 370), (439, 327), (456, 276), (559, 276), (581, 292), (558, 279),
+                (553, 253), (591, 265), (630, 275), (660, 263), (668, 233), (631, 220), (585, 238), (464, 209),
+                (485, 197), (457, 212), (527, 184), (558, 203), (589, 192), (489, 163), (507, 153), (538, 152),
+                (605, 174), (655, 139), (764, 165), (660, 102), (825, 73), (852, 133), (845, 222), (732, 197),
+                (773, 251)]
+
 aircraft_group = pg.sprite.Group(Aircraft(random.choice(destinations)), Aircraft(random.choice(destinations)))
+
 aircraft_fly_event = pg.USEREVENT + 1
+DNA_event = pg.USEREVENT + 1
 start_screen()
 
 while running:
