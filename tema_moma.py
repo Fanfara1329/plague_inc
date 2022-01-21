@@ -36,12 +36,11 @@ def start_screen():
                 elif 360 < pg.mouse.get_pos()[0] < 640 and 220 < pg.mouse.get_pos()[1] < 280:
                     how_to_play()
                 elif 390 < pg.mouse.get_pos()[0] < 620 and 290 < pg.mouse.get_pos()[1] < 350:
-                    print(screen.get_width(), screen.get_height())
                     app = QApplication(sys.argv)
                     ex = MyWidget()
                     ex.show()
                     app.exec()
-                    print(screen.get_width(), screen.get_height())
+
 
         pg.display.set_caption('Заставка')
         pg.display.flip()
@@ -170,7 +169,6 @@ class Countries(pg.sprite.Sprite):
     def update(self, *args):
         f2 = pg.font.Font(None, 40)
         local_pos = args[0].pos[0] - self.rect.x, args[0].pos[1] - self.rect.y
-        text2 = f2.render('', True, (255, 255, 255))
         if args and args[0].type == pg.MOUSEBUTTONDOWN and args[0].button == 1 and \
                 self.rect.collidepoint(args[0].pos):
             if self.mask.get_at(local_pos):
@@ -291,9 +289,10 @@ def map_of_world(a=False):
     background_image = pg.transform.scale(background_image, size)
     pg.display.set_caption('Основной экран')
 
-    f1 = pg.font.Font(None, 32)
+    f1 = pg.font.Font(None, 26)
     text = f1.render('Пути передачи', True, (0, 0, 0))
     a = ''
+    b = ''
 
     pg.display.set_caption('Основной экран')
     pg.display.flip()
@@ -314,6 +313,7 @@ def map_of_world(a=False):
                     i.update(event)
                     if i.update(event):
                         a = i.update(event)
+                        b = count_people[a][0]
 
             if event.type == aircraft_fly_event:
                 for air in aircraft_group:
@@ -337,11 +337,13 @@ def map_of_world(a=False):
         aircraft_group.update()
         screen.fill((30, 30, 100))
         screen.blit(background_image, (0, 0))
-        text_name = f1.render(a, True, (0, 0, 0))
+        text_name = f1.render(a, True, 'white')
+        text_count = f1.render(b, True, 'white')
         pg.draw.rect(screen, 'grey', (0, 550, 205, 45))
         pg.draw.rect(screen, 'white', (0, 550, 200, 40))
         screen.blit(text, (15, 558))
-        screen.blit(text_name, (0, 0))
+        screen.blit(text_name, (450, 576))
+        screen.blit(text_count, (600, 576))
 
         countries_group.draw(screen)
         for i in destinations:
