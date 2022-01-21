@@ -41,7 +41,6 @@ def start_screen():
                     ex.show()
                     app.exec()
 
-
         pg.display.set_caption('Заставка')
         pg.display.flip()
 
@@ -58,9 +57,9 @@ class MyWidget(QMainWindow):
 
         self.tableWidget.setColumnCount(len(result[0]))
         self.titles = [description[0] for description in cur.description]
-        for i, elem in enumerate(result):
+        for _, elem in enumerate(result):
             for j, val in enumerate(elem):
-                self.tableWidget.setItem(i, j, QTableWidgetItem(str(val)))
+                self.tableWidget.setItem(_, j, QTableWidgetItem(str(val)))
         self.modified = {}
         self.titles = None
 
@@ -160,14 +159,12 @@ class Countries(pg.sprite.Sprite):
 
     def __init__(self, pos, name, im, con_size, *group):
         super().__init__(*group)
-        self.speed = 0
         self.name = name
         self.image = pg.transform.scale(pg.image.load(im), con_size)
         self.rect = self.image.get_rect().move(pos)
         self.mask = pg.mask.from_surface(self.image)
 
     def update(self, *args):
-        f2 = pg.font.Font(None, 40)
         local_pos = args[0].pos[0] - self.rect.x, args[0].pos[1] - self.rect.y
         if args and args[0].type == pg.MOUSEBUTTONDOWN and args[0].button == 1 and \
                 self.rect.collidepoint(args[0].pos):
@@ -222,9 +219,9 @@ class Symptoms(pg.sprite.Sprite):
         if args and args[0].type == pg.MOUSEBUTTONDOWN and \
                 self.rect.collidepoint(args[0].pos):
             list_of_buy[self.ind] = 1
-            for i in self.neighbors[self.name.capitalize()]:
-                list_of_buy[i] = 1
-                Symptoms(*symptoms[i], symptoms_group)
+            for _ in self.neighbors[self.name.capitalize()]:
+                list_of_buy[_] = 1
+                Symptoms(*symptoms[_], symptoms_group)
 
 
 class Aircraft(pg.sprite.Sprite):
@@ -232,9 +229,11 @@ class Aircraft(pg.sprite.Sprite):
 
     def __init__(self, pos, *group):
         super().__init__(*group)
+        self.begin = ''
+        self.end = ''
         self.pos = pos
         self.image = Aircraft.image
-        self.speed = 2
+        self.speed = 3
         self.set_target(pos)
         self.rect = self.image.get_rect()
 
@@ -247,6 +246,9 @@ class Aircraft(pg.sprite.Sprite):
 
         if move_length < self.speed:
             self.pos = self.target
+            self.kill()
+            infection(self.begin, self.end)
+
         elif move_length != 0:
             move.normalize_ip()
             move = move * self.speed
@@ -271,19 +273,58 @@ class DNA(pg.sprite.Sprite):
         if args and args[0].type == pg.MOUSEBUTTONDOWN and \
                 self.rect.collidepoint(args[0].pos):
             self.kill()
-            pg.time.set_timer(DNA_event, 5000, loops=1)
+            pg.time.set_timer(DNA_event, 10000, loops=1)
 
 
 def moves():
-    DNA(random.choice(destinations), 0, dna_group)
+    ex = random.choice(list(countries.keys()))
+    v = random.choice(countries[ex][-1])
+    v = list(v)
+    v[0], v[1] = v[0] - 20, v[1] - 20
+    v = tuple(v)
+    DNA(v, 0, dna_group)
+
+
+def make_new_fly():
+    lis = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    choice = random.choice(lis)
+    if choice < 40:
+        begin, end = random.sample(countries.keys(), 2)
+        air_beg = random.choice(countries[begin][-1])
+        air_end = random.choice(countries[end][-1])
+        air = Aircraft(air_beg, aircraft_group)
+        air.begin, air.end = begin, end
+
+        if air_beg[0] > air_end[0] and air_beg[1] > air_end[1]:
+            air.image = pg.transform.scale(pg.image.load('aircraft_lu.png'), (20, 20))
+        elif air_beg[0] > air_end[0] and air_beg[1] < air_end[1]:
+            air.image = pg.transform.scale(pg.image.load('aircraft_ld.png'), (20, 20))
+        elif air.pos[0] < air_end[0] and air_beg[1] < air_end[1]:
+            air.image = pg.transform.scale(pg.image.load('aircraft_rd.png'), (20, 20))
+        elif air_beg[0] < air_end[0] and air_beg[1] > air_end[1]:
+            air.image = pg.transform.scale(pg.image.load('aircraft_ru.png'), (20, 20))
+
+        air_end = list(air_end)
+        air_end[0], air_end[1] = air_end[0] - 10, air_end[1] - 10
+        air_end = tuple(air_end)
+        air.set_target(air_end)
+
+
+def infection(b, e):
+    begin_inf, end_inf = countries[b][2], countries[e][2]
+    if begin_inf and not end_inf:
+        DNA(e, 0, dna_group)
+        countries[e][2] = 1
+    print(b, e)
+    print(begin_inf, end_inf)
 
 
 def map_of_world(a=False):
-    con = sqlite3.connect("result.db")
-    cur = con.cursor()
-    cur.execute("""INSERT INTO point(name) VALUES(?)""", (a,))
-    con.commit()
-    pg.time.set_timer(aircraft_fly_event, 13000)
+    # con = sqlite3.connect("result.db")
+    # cur = con.cursor()
+    # cur.execute("""INSERT INTO point(name) VALUES(?)""", (a,))
+    # con.commit()
+    pg.time.set_timer(aircraft_fly_event, 1000)
 
     background_image = pg.image.load('world_map_without_background.png')
     background_image = pg.transform.scale(background_image, size)
@@ -297,8 +338,9 @@ def map_of_world(a=False):
     pg.display.set_caption('Основной экран')
     pg.display.flip()
 
-    for j in countries:
-        Countries(*j, countries_group)
+    for country in countries.keys():
+        con = [countries[country][4], country, countries[country][0], countries[country][3]]
+        Countries(*con, countries_group)
 
     while True:
         for event in pg.event.get():
@@ -309,27 +351,14 @@ def map_of_world(a=False):
                 if 0 < pg.mouse.get_pos()[0] < 200 and 550 < pg.mouse.get_pos()[1] < 590:
                     map_of_symptoms()
             if event.type == pg.MOUSEBUTTONDOWN:
-                for i in countries_group:
-                    i.update(event)
-                    if i.update(event):
-                        a = i.update(event)
-                        b = count_people[a][0]
+                for _ in countries_group:
+                    _.update(event)
+                    if _.update(event):
+                        a = _.update(event)
+                        b = countries[a][1]
 
             if event.type == aircraft_fly_event:
-                for air in aircraft_group:
-                    x = random.choice(destinations)
-                    if air.pos[0] > x[0] and air.pos[1] > x[1]:
-                        air.image = pg.transform.scale(pg.image.load('aircraft_lu.png'), (20, 20))
-                    elif air.pos[0] > x[0] and air.pos[1] < x[1]:
-                        air.image = pg.transform.scale(pg.image.load('aircraft_ld.png'), (20, 20))
-                    elif air.pos[0] < x[0] and air.pos[1] < x[1]:
-                        air.image = pg.transform.scale(pg.image.load('aircraft_rd.png'), (20, 20))
-                    elif air.pos[0] < x[0] and air.pos[1] > x[1]:
-                        air.image = pg.transform.scale(pg.image.load('aircraft_ru.png'), (20, 20))
-                    x = list(x)
-                    x[0], x[1] = x[0] - 10, x[1] - 10
-                    x = tuple(x)
-                    air.set_target(x)
+                make_new_fly()
 
             if event.type == DNA_event:
                 moves()
@@ -346,8 +375,8 @@ def map_of_world(a=False):
         screen.blit(text_count, (600, 576))
 
         countries_group.draw(screen)
-        for i in destinations:
-            pg.draw.circle(screen, 'red', i, 2)
+        for _ in airports:
+            pg.draw.circle(screen, 'red', _, 2)
 
         aircraft_group.draw(screen)
         dna_group.draw(screen)
@@ -371,9 +400,9 @@ def map_of_symptoms():
     screen.blit(text2, (787, 30))
     screen.blit(text, (15, 558))
     screen.blit(text3, (787, 90))
-    for i in symptoms:
-        if list_of_buy[i[3]] == 1:
-            Symptoms(*i, symptoms_group)
+    for _ in symptoms:
+        if list_of_buy[_[3]] == 1:
+            Symptoms(*_, symptoms_group)
 
     while True:
         for event in pg.event.get():
@@ -434,107 +463,120 @@ symptoms = [[(664, 460), 'анемия', 'симптомы/анемия.png', 0]
             [(664, 220), 'некроз', 'симптомы/некроз.png', 30],
             [(664, 300), 'геморрагический шок', 'симптомы/геморрагический шок.png', 31]]
 
-countries = [[(750, 410), 'Австралия', 'pictures/Austraalia/australia_0.png', (172.5, 135.8)],
-             [(886, 505.5), 'Новая Зеландия', 'pictures/New Zealand/New Zealand_0.png', (87.47, 84.57)],
-             [(848, 359), 'Новая Гвинея', 'pictures/New Guinea/new guinea_0.png', (74.501, 51.428)],
-             [(728, 331.5), 'Иднонезия', 'pictures/Indonesia/indonesia_0.png', (93.569, 65.142)],
-             [(792, 288.5), 'Филиппины', 'pictures/Philippines/philippines_0.png', (47, 42.857)],
-             [(822.3, 175.4), 'Япония', 'pictures/Japan/japan_0.png', (43.902, 71.571)],
-             [(717, 259), 'Ю.-В. Азия', 'pictures/S-E Asia/s-e asia_0.png', (118.847, 114.857)],
-             [(657.5, 199), 'Индия', 'pictures/India/india_0.png', (82.926, 146.142)],
-             [(259.6, 22), 'Гренландия', 'pictures/Greenland/greenland_0.png', (177.383, 147.857)],
-             [(26, 22), 'Канада', 'pictures/Canada/canada_0.png', (302.882, 194.142)],
-             [(570, 402), 'Мадагаскар', 'pictures/Madagascar/madagascar_0.png', (39.467, 47.571)],
-             [(197.7, 289), 'Карибы', 'pictures/Caribbean_Islands/caribbean_0.png', (60.753, 29.571)],
-             [(165, 288), 'Центр. Америка', 'pictures/Central America/central_0.png', (53.215, 68.571)],
-             [(90, 244), 'Мексика', 'pictures/Mexico/mexico_0.png', (111.549, 85.201)],
-             [(88, 150), 'США', 'pictures/USA/usa_0.png', (205.321, 140.571)],
-             [(468.7, 56.3), 'Исландия', 'pictures/Iceland/iceland_0.png', (44.789, 34.285)],
-             [(194.5, 327), 'Колумбия', 'pictures/Colombia/colombia_0.png', (101.552, 71.571)],
-             [(210.5, 310), 'Бразилия', 'pictures/Brazil/brazil_0.png', (145.011, 146.142)],
-             [(200, 380), 'Перу', 'pictures/Peru/peru_0.png', (65.188, 48.428)],
-             [(226, 416), 'Боливия', 'pictures/Bolivia/bolivia_0.png', (92.682, 42.857)],
-             [(233, 430), 'Аргентина', 'pictures/Argentina/argentina_0.png', (91.352, 138.428)],
-             [(433, 368), 'Южная Африка', 'pictures/South Africa/south_0.png', (170.731, 123.428)],
-             [(510, 408), 'Ботсвана', 'pictures/Botswana/botswana_0.png', (34.146, 37.285)],
-             [(489, 384), 'Зимбабве', 'pictures/Zimbabwe/zimbabwe_0.png', (71.396, 39.428)],
-             [(493, 304), 'Вост. Африка', 'pictures/East Africa/east_0.png', (113.968, 139.285)],
-             [(466, 346), 'Ангола', 'pictures/Angola/angola_0.png', (79.822, 51.857)],
-             [(498, 279), 'Судан', 'pictures/Sudan/sudan_0.png', (79.379, 92.142)],
-             [(494, 258), 'Египет', 'pictures/Egypt/egypt_0.png', (60.753, 57.428)],
-             [(473, 259), 'Ливия', 'pictures/Libya/libya_0.png', (53.215, 52.285)],
-             [(453, 286), 'Цент. Африка', 'pictures/Central Africa/central africa_0.png', (84.7, 87.428)],
-             [(394, 284), 'Запад. Африка', 'pictures/West Africa/west africa_0.png', (87.361, 75.857)],
-             [(393, 249), 'Монако', 'pictures/Monaco/monaco_0.png', (59.423, 75.428)],
-             [(423, 239), 'Алжир', 'pictures/Algeria/algeria_0.png', (63.858, 72.429)],
-             [(682, 145), 'Китай', 'pictures/China/сhina_0.png', (164.079, 142.285)],
-             [(787, 204), 'Корея', 'pictures/Korea/korea_0.png', (38.137, 42)],
-             [(508, 22), 'Россия', 'pictures/Russia/russia_0.png', (400, 184.285)],
-             [(500, 117), 'Финляндия', 'pictures/Finland/finland_0.png', (24.83, 59.142)],
-             [(465, 115), 'Швеция', 'pictures/Sweden/sweden_0.png', (56.319, 72.428)],
-             [(454, 120), 'Норвегия', 'pictures/Norway/norway_0.png', (41.241, 54)],
-             [(414.8, 164.5), 'Англия', 'pictures/England/england_0.png', (45.232, 45)],
-             [(418, 218), 'Испания', 'pictures/Spain/spain_0.png', (44.345, 36.428)],
-             [(450, 219), 'Италия', 'pictures/Italy/italy_0.png', (52.771, 30)],
-             [(429, 192), 'Франция', 'pictures/France/france_0.png', (64.301, 38.142)],
-             [(459, 173), 'Германия', 'pictures/Germany/germany_0.png', (59.866, 46.285)],
-             [(478, 215), 'Балканы', 'pictures/Balkans/balkans_0.png', (63.414, 40.714)],
-             [(490, 200), 'Цент. Европа', 'pictures/Central Europe/central_europe_0.png', (74.501, 37.714)],
-             [(518, 233), 'Турция', 'pictures/Turkey/turkey_0.png', (50.554, 21.428)],
-             [(502, 153), 'Прибалтика', 'pictures/Baltic states/baltic_states_0.png', (68.736, 77.571)],
-             [(520.7, 160), 'Польша', 'pictures/Poland/poland_0.png', (83.813, 68.571)],
-             [(555, 164), 'Украина', 'pictures/Ukraine/ukraine_0.png', (86.917, 53.142)],
-             [(557, 272), 'Сауд. Аравия', 'pictures/Saudi Arabia/saudi_arabia_0.png', (74.057, 57)],
-             [(534, 263), 'Ближ. Восток', 'pictures/Middle East/middle_east_0.png', (64.301, 33.857)],
-             [(534, 245), 'Ирак', 'pictures/Iraq/iraq_0.png', (66.962, 30)],
-             [(565, 245), 'Иран', 'pictures/Iran/iran_0.png', (64.301, 41.571)],
-             [(605, 253), 'Пакистан', 'pictures/Pakistan/pakistan_0.png', (62.527, 39.857)],
-             [(617, 245), 'Афганистан', 'pictures/Afghanistan/afghanistan_0.png', (86.031, 48.857)],
-             [(588, 188), 'Казахстан', 'pictures/Kazakhstan/kazakhstan_0.png', (110.864, 75)],
-             [(624, 202), 'Монголия', 'pictures/Mongolia/mongolia_0.png', (73.17, 64.285)],
-             [(550, 206), 'Цент. Азия', 'pictures/Central Asia/central_asia_0.png', (83.37, 62.142)]]
+countries = {'Австралия': ['pictures/Austraalia/australia_0.png', '22 685 143', 0, (172.5, 135.8), (750, 410),
+                           [(803, 469), (851, 453), (863, 511)]],
+             'Новая Зеландия': ['pictures/New Zealand/New Zealand_0.png', '5 112 300 чел', 0, (87.47, 84.57),
+                                (886, 505.5), [(953, 537), (924, 555)]],
+             'Новая Гвинея': ['pictures/New Guinea/new guinea_0.png', '8 776 096', 0, (74.501, 51.428), (848, 359),
+                              [(873, 378), (898, 394)]],
+             'Иднонезия': ['pictures/Indonesia/indonesia_0.png', '271 349 889', 0, (93.569, 65.142), (728, 331.5),
+                           [(802, 363), (756, 374)]],
+             'Филиппины': ['pictures/Philippines/philippines_0.png', '109 035 343', 0, (47, 42.857), (792, 288.5),
+                           [(817, 308)]],
+             'Япония': ['pictures/Japan/japan_0.png', '125 552 000 ', 0, (43.902, 71.571), (822.3, 175.4),
+                        [(847, 226)]],
+             'Ю.-В. Азия': ['pictures/S-E Asia/s-e asia_0.png', '655 298 044', 0, (118.847, 114.857), (717, 259),
+                            [(746, 283), (769, 321), (763, 356)]],
+             'Индия': ['pictures/India/india_0.png', '1 381 790 000', 0, (82.926, 146.142), (657.5, 199),
+                       [(705, 227), (712, 273), (682, 303)]],
+             'Гренландия': ['pictures/Greenland/greenland_0.png', '56 770', 0, (177.383, 147.857), (259.6, 22),
+                            [(297, 48), (348, 82)]],
+             'Канада': ['pictures/Canada/canada_0.png', '38 246 108', 0, (302.882, 194.142), (26, 22),
+                        [(106, 95), (165, 147), (271, 120)]],
+             'Мадагаскар': ['pictures/Madagascar/madagascar_0.png', '28 427 328', 0, (39.467, 47.571), (570, 402),
+                            [(589, 429)]],
+             'Карибы': ['pictures/Caribbean_Islands/caribbean_0.png', '42 000 000', 0, (60.753, 29.571), (197.7, 289),
+                        [(215, 299), (237, 311)]],
+             'Центр. Америка': ['pictures/Central America/central_0.png', '4 745 000', 0, (53.215, 68.571), (165, 288),
+                                [(182, 310), (196, 341)]],
+             'Мексика': ['pictures/Mexico/mexico_0.png', '128,932,753', 0, (111.549, 85.201), (90, 244),
+                         [(130, 270), (146, 292)]],
+             'США': ['pictures/USA/usa_0.png', '332 278 200', 0, (205.321, 140.571), (88, 150),
+                     [(136, 205), (169, 231), (237, 202)]],
+             'Исландия': ['pictures/Iceland/iceland_0.png', '350 000', 0, (44.789, 34.285), (468.7, 56.3), [(486, 73)]],
+             'Колумбия': ['pictures/Colombia/colombia_0.png', '50 372 424', 0, (101.552, 71.571), (194.5, 327),
+                          [(234, 344), (231, 376)]],
+             'Бразилия': ['pictures/Brazil/brazil_0.png', '213 317 639', 0, (145.011, 146.142), (210.5, 310),
+                          [(282, 376), (322, 386), (311, 429)]],
+             'Перу': ['pictures/Peru/peru_0.png', '34 294 231', 0, (65.188, 48.428), (200, 380),
+                      [(219, 399), (248, 416)]],
+             'Боливия': ['pictures/Bolivia/bolivia_0.png', '11 639 909', 0, (92.682, 42.857), (226, 416),
+                         [(259, 435), (277, 444)]],
+             'Аргентина': ['pictures/Argentina/argentina_0.png', '44 938 742', 0, (91.352, 138.428), (233, 430),
+                           [(274, 487), (260, 537), (254, 461)]],
+             'Южная Африка': ['pictures/South Africa/south_0.png', '60 142 978', 0, (170.731, 123.428), (433, 368),
+                              [(501, 420), (512, 449), (543, 446)]],
+             'Ботсвана': ['pictures/Botswana/botswana_0.png', '2 380 250', 0, (34.146, 37.285), (510, 408),
+                          [(527, 433)]],
+             'Зимбабве': ['pictures/Zimbabwe/zimbabwe_0.png', '14 862 927', 0, (71.396, 39.428), (489, 384),
+                          [(521, 406)]],
+             'Вост. Африка': ['pictures/East Africa/east_0.png', '433 904 943', 0, (113.968, 139.285), (493, 304),
+                              [(560, 335), (555, 376), (541, 418)]],
+             'Ангола': ['pictures/Angola/angola_0.png', '31 127 674', 0, (79.822, 51.857), (466, 346), [(497, 374)]],
+             'Судан': ['pictures/Sudan/sudan_0.png', '44 909 353', 0, (79.379, 92.142), (498, 279),
+                       [(545, 301), (525, 337)]],
+             'Египет': ['pictures/Egypt/egypt_0.png', '100 223 850', 0, (60.753, 57.428), (494, 258), [(523, 284)]],
+             'Ливия': ['pictures/Libya/libya_0.png', '5 700 000', 0, (53.215, 52.285), (473, 259), [(496, 284)]],
+             'Цент. Африка': ['pictures/Central Africa/central africa_0.png', '675 920 972', 0, (84.7, 87.428),
+                              (453, 286), [(489, 314), (494, 345)]],
+             'Запад. Африка': ['pictures/West Africa/west africa_0.png', '347 098 777', 0, (87.361, 75.857),
+                               (394, 284), [(432, 310), (458, 328), (434, 343)]],
+             'Монако': ['pictures/Monaco/monaco_0.png', '38 350', 0, (59.423, 75.428), (393, 249), [(417, 291)]],
+             'Алжир': ['pictures/Algeria/algeria_0.png', '43 910 000', 0, (63.858, 72.429), (423, 239),
+                       [(467, 267), (457, 291)]],
+             'Китай': ['pictures/China/сhina_0.png', '1 442 965 000', 0, (164.079, 142.285), (682, 145),
+                       [(744, 191), (808, 169), (766, 248)]],
+             'Корея': ['pictures/Korea/korea_0.png', '25 449 927', 0, (38.137, 42), (787, 204), [(809, 220)]],
+             'Россия': ['pictures/Russia/russia_0.png', '145 975 300', 0, (400, 184.285), (508, 22),
+                        [(556, 147), (617, 176), (677, 143), (764, 150), (805, 95), (862, 133)]],
+             'Финляндия': ['pictures/Finland/finland_0.png', '5 528 737', 0, (24.83, 59.142), (500, 117), [(514, 156)]],
+             'Швеция': ['pictures/Sweden/sweden_0.png', '10 409 248', 0, (56.319, 72.428), (465, 115), [(501, 135)]],
+             'Норвегия': ['pictures/Norway/norway_0.png', '5 391 369', 0, (41.241, 54), (454, 120), [(486, 139)]],
+             'Англия': ['pictures/England/england_0.png', '63 400 000', 0, (45.232, 45), (414.8, 164.5), [(441, 192)]],
+             'Испания': ['pictures/Spain/spain_0.png', '47 394 223', 0, (44.345, 36.428), (418, 218), [(442, 240)]],
+             'Италия': ['pictures/Italy/italy_0.png', '62 000 000', 0, (52.771, 30), (450, 219), [(490, 239)]],
+             'Франция': ['pictures/France/france_0.png', '67 413 000', 0, (64.301, 38.142), (429, 192), [(464, 212)]],
+             'Германия': ['pictures/Germany/germany_0.png', '83 190 556', 0, (59.866, 46.285), (459, 173),
+                          [(494, 200)]],
+             'Балканы': ['pictures/Balkans/balkans_0.png', '55 000 000', 0, (63.414, 40.714), (478, 215), [(521, 224)]],
+             'Цент. Европа': ['pictures/Central Europe/central_europe_0.png', '2 000 000', 0, (74.501, 37.714),
+                              (490, 200), [(546, 229), (514, 221)]],
+             'Турция': ['pictures/Turkey/turkey_0.png', '83 154 997', 0, (50.554, 21.428), (518, 233), [(549, 246)]],
+             'Прибалтика': ['pictures/Baltic states/baltic_states_0.png', '6 121 000', 0, (68.736, 77.571), (502, 153),
+                            [(529, 178), (526, 201)]],
+             'Польша': ['pictures/Poland/poland_0.png', '38 228 100', 0, (83.813, 68.571), (520.7, 160),
+                        [(553, 209), (568, 199)]],
+             'Украина': ['pictures/Ukraine/ukraine_0.png', '43 200 350', 0, (86.917, 53.142), (555, 164),
+                         [(583, 186), (602, 199)]],
+             'Сауд. Аравия': ['pictures/Saudi Arabia/saudi_arabia_0.png', '27 345 986', 0, (74.057, 57), (557, 272),
+                              [(580, 298), (611, 305)]],
+             'Ближ. Восток': ['pictures/Middle East/middle_east_0.png', '312 008 700', 0, (64.301, 33.857), (534, 263),
+                              [(562, 281)]],
+             'Ирак': ['pictures/Iraq/iraq_0.png', '37 056 169', 0, (66.962, 30), (534, 245), [(563, 260)]],
+             'Иран': ['pictures/Iran/iran_0.png', '83 183 741', 0, (64.301, 41.571), (565, 245), [(606, 270)]],
+             'Пакистан': ['pictures/Pakistan/pakistan_0.png', '207 774 520', 0, (62.527, 39.857), (605, 253),
+                          [(624, 280), (640, 280)]],
+             'Афганистан': ['pictures/Afghanistan/afghanistan_0.png', '37 466 414', 0, (86.031, 48.857), (617, 245),
+                            [(650, 266), (663, 273)]],
+             'Казахстан': ['pictures/Kazakhstan/kazakhstan_0.png', '19 082 467', 0, (110.864, 75), (588, 188),
+                           [(673, 213), (628, 218), (638, 236)]],
+             'Монголия': ['pictures/Mongolia/mongolia_0.png', '3 353 470', 0, (73.17, 64.285), (624, 202),
+                          [(682, 222), (657, 247)]],
+             'Цент. Азия': ['pictures/Central Asia/central_asia_0.png', '74 500 000', 0, (83.37, 62.142), (550, 206),
+                            [(572, 227), (579, 244), (608, 249)]]}
+
+airports = []
+for key in countries.keys():
+    cic = countries[key][-1]
+    for i in cic:
+        airports.append(i)
+
 list_of_buy = [1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0]
 countries_group = pg.sprite.Group()
 symptoms_group = pg.sprite.Group()
-dna_group = pg.sprite.Group(DNA((100, 100), 1), DNA((500, 200), 0))
+dna_group = pg.sprite.Group(DNA(random.choice(airports), 1), DNA(random.choice(airports), 0))
 
-count_people = {'Австралия': ['22 685 143'], 'Новая Зеландия': ['5 112 300 чел'], 'Новая Гвинея': ['8 776 096'],
-                'Иднонезия': ['271 349 889'], 'Филиппины': ['109 035 343'], 'Япония': ['125 552 000 '],
-                'Ю.-В. Азия': ['655 298 044'], 'Индия': ['1 381 790 000'], 'Гренландия': ['56 770'],
-                'Канада': ['38 246 108'],
-                'Мадагаскар': ['28 427 328'], 'Карибы': ['42 000 000'], 'Центр. Америка': ['4 745 000'],
-                'Мексика': ['128,932,753'],
-                'США': ['332 278 200'], 'Исландия': ['350 000'], 'Колумбия': ['50 372 424'],
-                'Бразилия': ['213 317 639'],
-                'Перу': ['34 294 231'], 'Боливия': ['11 639 909'], 'Аргентина': ['44 938 742'],
-                'Южная Африка': ['60 142 978'],
-                'Ботсвана': ['2 380 250'], 'Зимбабве': ['14 862 927'], 'Вост. Африка': ['433 904 943'],
-                'Ангола': ['31 127 674'],
-                'Судан': ['44 909 353'], 'Египет': ['100 223 850'], 'Ливия': ['5 700 000'],
-                'Цент. Африка': ['675 920 972'], 'Запад. Африка': ['347 098 777'],
-                'Монако': ['38 350'], 'Алжир': ['43 910 000'], 'Китай': ['1 442 965 000'], 'Корея': ['25 449 927'],
-                'Россия': ['145 975 300'], 'Финляндия': ['5 528 737'],
-                'Швеция': ['10 409 248'], 'Норвегия': ['5 391 369'], 'Англия': ['63 400 000'],
-                'Испания': ['47 394 223'], 'Италия': ['62 000 000'], 'Франция': ['67 413 000'],
-                'Германия': ['83 190 556'], 'Балканы': ['55 000 000'], 'Цент. Европа': ['2 000 000'],
-                'Турция': ['83 154 997'], 'Прибалтика': ['6 121 000'],
-                'Польша': ['38 228 100'],
-                'Украина': ['43 200 350'], 'Сауд. Аравия': ['27 345 986'], 'Ближ. Восток': ['312 008 700'],
-                'Ирак': ['37 056 169'], 'Иран': ['83 183 741'],
-                'Пакистан': ['207 774 520'], 'Афганистан': ['37 466 414'],
-                'Казахстан': ['19 082 467'], 'Монголия': ['3 353 470'], 'Цент. Азия': ['74 500 000']}
-destinations = [(98, 80), (273, 168), (167, 147), (201, 75), (213, 53), (294, 49), (349, 120), (336, 385), (268, 436),
-                (255, 465), (257, 523), (491, 72), (503, 434), (528, 430), (202, 247), (269, 199), (120, 269),
-                (151, 305), (194, 340), (215, 301), (230, 370), (273, 394), (522, 404), (554, 414), (559, 355),
-                (529, 326), (492, 328), (135, 204), (496, 281), (524, 284), (535, 313), (593, 422), (688, 308),
-                (708, 233), (692, 301), (756, 296), (759, 372), (803, 365), (884, 382), (821, 455), (875, 486),
-                (947, 534), (415, 284), (495, 370), (439, 327), (456, 276), (559, 276), (581, 292), (558, 279),
-                (553, 253), (591, 265), (630, 275), (660, 263), (668, 233), (631, 220), (585, 238), (464, 209),
-                (485, 197), (457, 212), (527, 184), (558, 203), (589, 192), (489, 163), (507, 153), (538, 152),
-                (605, 174), (655, 139), (764, 165), (660, 102), (825, 73), (852, 133), (845, 222), (732, 197),
-                (773, 251)]
-
-aircraft_group = pg.sprite.Group(Aircraft(random.choice(destinations)), Aircraft(random.choice(destinations)))
+aircraft_group = pg.sprite.Group()
 
 aircraft_fly_event = pg.USEREVENT + 1
 DNA_event = pg.USEREVENT + 1
