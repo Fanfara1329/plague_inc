@@ -77,7 +77,6 @@ def player_name():
     text3 = f2.render('GO!', True, 'black')
     screen.blit(text, (300, 48))
     screen.blit(text3, (770, 185))
-    pg.display.set_caption('Нихуя')
 
     need_input = False
     input_text = ''
@@ -96,6 +95,9 @@ def player_name():
             if event.type == pg.MOUSEBUTTONDOWN:
                 if 770 < pg.mouse.get_pos()[0] < 820 and 185 < pg.mouse.get_pos()[1] < 210:
                     map_of_world(input_text)
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_RETURN:
+                    map_of_world(input_text)
 
         keys = pg.key.get_pressed()
 
@@ -103,7 +105,7 @@ def player_name():
             need_input = True
 
         text2 = f2.render(input_text, True, (255, 255, 255))
-        pg.display.set_caption('Основной экран')
+        pg.display.set_caption('Инициализация')
         screen.blit(background_image, (0, 0))
         screen.blit(text, (300, 48))
         screen.blit(text3, (770, 185))
@@ -159,6 +161,8 @@ class Countries(pg.sprite.Sprite):
 
     def __init__(self, pos, name, im, con_size, *group):
         super().__init__(*group)
+        self.speed = 0
+        self.infected = 0
         self.name = name
         self.image = pg.transform.scale(pg.image.load(im), con_size)
         self.rect = self.image.get_rect().move(pos)
@@ -169,7 +173,7 @@ class Countries(pg.sprite.Sprite):
         if args and args[0].type == pg.MOUSEBUTTONDOWN and args[0].button == 1 and \
                 self.rect.collidepoint(args[0].pos):
             if self.mask.get_at(local_pos):
-                return self.name
+                return self.name, self.infected
 
 
 class Symptoms(pg.sprite.Sprite):
@@ -274,6 +278,7 @@ class DNA(pg.sprite.Sprite):
                 self.rect.collidepoint(args[0].pos):
             self.kill()
             pg.time.set_timer(DNA_event, 10000, loops=1)
+            return 1
 
 
 def moves():
@@ -320,10 +325,10 @@ def infection(b, e):
 
 
 def map_of_world(a=False):
-    # con = sqlite3.connect("result.db")
-    # cur = con.cursor()
+    con = sqlite3.connect("result.db")
+    cur = con.cursor()
     # cur.execute("""INSERT INTO point(name) VALUES(?)""", (a,))
-    # con.commit()
+    con.commit()
     pg.time.set_timer(aircraft_fly_event, 1000)
 
     background_image = pg.image.load('world_map_without_background.png')
@@ -331,9 +336,11 @@ def map_of_world(a=False):
     pg.display.set_caption('Основной экран')
 
     f1 = pg.font.Font(None, 26)
-    text = f1.render('Пути передачи', True, (0, 0, 0))
+    f3 = pg.font.Font(None, 32)
+    text = f3.render('Пути передачи', True, (0, 0, 0))
     a = ''
     b = ''
+    c = ''
 
     pg.display.set_caption('Основной экран')
     pg.display.flip()
@@ -342,9 +349,14 @@ def map_of_world(a=False):
         con = [countries[country][4], country, countries[country][0], countries[country][3]]
         Countries(*con, countries_group)
 
+    count = 0
     while True:
         for event in pg.event.get():
-            dna_group.update(event)
+            for i in dna_group:
+                i.update(event)
+                if i.update(event):
+                    a = i.update(event)
+                    count += 1
             if event.type == pg.QUIT:
                 exit()
             if event.type == pg.MOUSEBUTTONDOWN:
@@ -354,7 +366,8 @@ def map_of_world(a=False):
                 for _ in countries_group:
                     _.update(event)
                     if _.update(event):
-                        a = _.update(event)
+                        a = _.update(event)[0]
+                        c = str(_.update(event)[1])
                         b = countries[a][1]
 
             if event.type == aircraft_fly_event:
@@ -366,13 +379,19 @@ def map_of_world(a=False):
         aircraft_group.update()
         screen.fill((30, 30, 100))
         screen.blit(background_image, (0, 0))
-        text_name = f1.render(a, True, 'white')
-        text_count = f1.render(b, True, 'white')
+        if isinstance(a, str):
+            text_name = f1.render(a, True, 'white')
+            text_count = f1.render(b, True, 'white')
+            text_infected = f1.render(c, True, 'red')
+            screen.blit(text_name, (450, 576))
+            screen.blit(text_count, (600, 576))
+            screen.blit(text_infected, (330, 576))
+        text_dna = f1.render(str(count), True, 'red')
         pg.draw.rect(screen, 'grey', (0, 550, 205, 45))
         pg.draw.rect(screen, 'white', (0, 550, 200, 40))
         screen.blit(text, (15, 558))
-        screen.blit(text_name, (450, 576))
-        screen.blit(text_count, (600, 576))
+
+        screen.blit(text_dna, (850, 576))
 
         countries_group.draw(screen)
         for _ in airports:
@@ -389,17 +408,20 @@ def map_of_symptoms():
     screen.blit(background_image, (0, 0))
     pg.draw.rect(screen, 'grey', (0, 550, 155, 45))
     pg.draw.rect(screen, 'white', (0, 550, 150, 40))
-    pg.draw.rect(screen, 'black', (785, 20, 200, 540))
+    pg.draw.rect(screen, 'black', (785, 200, 200, 200))
     f1 = pg.font.Font(None, 32)
     f2 = pg.font.SysFont('impact', 22)
     f3 = pg.font.Font(None, 22)
     text = f1.render('Карта мира', True, (0, 0, 0))
     text2 = f2.render('Выберите симптом', True, 'white')
-    text3 = f3.render('Используйте очки ДНК,'
-                      'чтобы менять симптомы болезьни!', True, 'white')
-    screen.blit(text2, (787, 30))
+    text3 = f3.render('Используйте очки ДНК,', True, 'white')
+    text4 = f3.render('чтобы менять симптомы', True, 'white')
+    text5 = f3.render('болезни!', True, 'white')
+    screen.blit(text2, (787, 200))
     screen.blit(text, (15, 558))
-    screen.blit(text3, (787, 90))
+    screen.blit(text3, (787, 240))
+    screen.blit(text4, (787, 265))
+    screen.blit(text5, (787, 290))
     for _ in symptoms:
         if list_of_buy[_[3]] == 1:
             Symptoms(*_, symptoms_group)
