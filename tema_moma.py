@@ -79,7 +79,7 @@ def player_name():
     text3 = f2.render('GO!', True, 'black')
     screen.blit(text, (300, 48))
     screen.blit(text3, (770, 185))
-    pg.display.set_caption('')
+    pg.display.set_caption('Нихуя')
 
     need_input = False
     input_text = ''
@@ -167,11 +167,15 @@ class Rendering(pg.sprite.Sprite):
         self.mask = pg.mask.from_surface(self.image)
 
     def update(self, *args):
+        f2 = pg.font.Font(None, 40)
         local_pos = args[0].pos[0] - self.rect.x, args[0].pos[1] - self.rect.y
+        text2 = f2.render('', True, (255, 255, 255))
         if args and args[0].type == pg.MOUSEBUTTONDOWN and args[0].button == 1 and \
                 self.rect.collidepoint(args[0].pos):
             if self.mask.get_at(local_pos):
-                print(self.name)
+                text2 = f2.render(self.name, True, (255, 255, 255))
+                screen.blit(text2, (0, 0))
+                pg.display.update()
 
 
 class Symptoms(pg.sprite.Sprite):
@@ -277,7 +281,7 @@ def moves():
     DNA(random.choice(destinations), 0, dna_group)
 
 
-def map_of_world(a):
+def map_of_world(a=False):
     con = sqlite3.connect("result.db")
     cur = con.cursor()
     cur.execute("""INSERT INTO point(name) VALUES(?)""", (a,))
@@ -508,7 +512,8 @@ count_people = {'Австралия': ['22 685 143'], 'Новая Зеланди
                 'Германия': ['83 190 556'], 'Балканы': ['55 000 000'], 'Цент. Европа': ['2 000 000'],
                 'Турция': ['83 154 997'], 'Прибалтика': ['6 121 000'],
                 'Польша': ['38 228 100'],
-                'Украина': ['43 200 350'], 'Сауд. Аравия': ['27 345 986'], 'Ближ. Восток': ['312 008 700'], 'Ирак': ['37 056 169'], 'Иран': ['83 183 741'],
+                'Украина': ['43 200 350'], 'Сауд. Аравия': ['27 345 986'], 'Ближ. Восток': ['312 008 700'],
+                'Ирак': ['37 056 169'], 'Иран': ['83 183 741'],
                 'Пакистан': ['207 774 520'], 'Афганистан': ['37 466 414'],
                 'Казахстан': ['19 082 467'], 'Монголия': ['3 353 470'], 'Цент. Азия': ['74 500 000']}
 destinations = [(98, 80), (273, 168), (167, 147), (201, 75), (213, 53), (294, 49), (349, 120), (336, 385), (268, 436),
