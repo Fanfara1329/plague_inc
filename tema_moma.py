@@ -196,6 +196,8 @@ def player_name():
             if event.type == pg.MOUSEBUTTONDOWN:
                 if 770 < pg.mouse.get_pos()[0] < 820 and 185 < pg.mouse.get_pos()[1] < 210:
                     first = choice_country()
+                    countries[first][2] = 1
+                    print(countries[first])
                     map_of_world(input_text)
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_RETURN:
@@ -299,7 +301,7 @@ def choice_country():
         confirm_text = f1.render('Подтвердить страну', True, 'red')
         screen.blit(text_error, (360, 560))
         screen.blit(confirm_text, (340, 530))
-        button = pg.image.load('start.jpg')
+        button = pg.image.load('start.png')
         button = pg.transform.scale(button, (60, 60))
         screen.blit(button, (600, 510))
         pg.display.flip()
@@ -364,8 +366,10 @@ class Symptoms(pg.sprite.Sprite):
         self.ind = num
         self.buy = 0
         self.name = name
+        self.im = im
         self.image = pg.transform.scale(pg.image.load(im), (92, 80))
         self.rect = self.image.get_rect().move(pos)
+        self.buy = False
 
     def update(self, *args):
         f1 = pg.font.Font(None, 70)
@@ -382,10 +386,14 @@ class Symptoms(pg.sprite.Sprite):
             pg.draw.rect(screen, 'white', (800, 350, 170, 40))
             text2 = f2.render('Купить', True, 'black')
             screen.blit(text2, (830, 357))
-        if args and args[0].type == pg.MOUSEBUTTONDOWN:
+            self.buy = True
+        if args and args[0].type == pg.MOUSEBUTTONDOWN and self.buy:
+            print(self.im)
             if 785 < pg.mouse.get_pos()[0] < 985 and 200 < pg.mouse.get_pos()[1] < 400:
-                print(self)
+                self.im = self.im[:-4] + '_1' + self.im[-4:]
+                self.image = pg.transform.scale(pg.image.load(self.im), (92, 80))
                 list_of_buy[self.ind] = 1
+                pg.draw.rect(screen, 'black', (785, 200, 200, 200))
                 for _ in self.neighbors[self.name.capitalize()][:-2]:
                     list_of_buy[_] = 1
                     Symptoms(*symptoms[_], symptoms_group)
