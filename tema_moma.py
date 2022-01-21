@@ -1,8 +1,15 @@
 import pygame as pg
 import random
+import sqlite3
+import sys
+
+from PyQt5 import uic
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem
 
 
 def start_screen():
+    global screen
     background_image = pg.image.load('screensaver.jpeg')
     background_image = pg.transform.scale(background_image, size)
     screen.blit(background_image, (0, 0))
@@ -28,9 +35,38 @@ def start_screen():
                     player_name()
                 elif 360 < pg.mouse.get_pos()[0] < 640 and 220 < pg.mouse.get_pos()[1] < 280:
                     how_to_play()
+                elif 390 < pg.mouse.get_pos()[0] < 620 and 290 < pg.mouse.get_pos()[1] < 350:
+                    print(screen.get_width(), screen.get_height())
+                    app = QApplication(sys.argv)
+                    ex = MyWidget()
+                    ex.show()
+                    app.exec()
+                    print(screen.get_width(), screen.get_height())
 
         pg.display.set_caption('Заставка')
         pg.display.flip()
+
+
+class MyWidget(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        uic.loadUi("UI1.ui", self)
+        self.con = sqlite3.connect("result.db")
+        self.pushButton.clicked.connect(self.update_result)
+        cur = self.con.cursor()
+        result = cur.execute("SELECT * FROM point").fetchall()
+        self.tableWidget.setRowCount(len(result))
+
+        self.tableWidget.setColumnCount(len(result[0]))
+        self.titles = [description[0] for description in cur.description]
+        for i, elem in enumerate(result):
+            for j, val in enumerate(elem):
+                self.tableWidget.setItem(i, j, QTableWidgetItem(str(val)))
+        self.modified = {}
+        self.titles = None
+
+    def update_result(self):
+        self.close()
 
 
 def player_name():
@@ -57,11 +93,11 @@ def player_name():
                     input_text = ''
                 elif event.key == pg.K_BACKSPACE:
                     input_text = input_text[:-1]
-                else:
+                elif len(input_text) < 28:
                     input_text += event.unicode
             if event.type == pg.MOUSEBUTTONDOWN:
                 if 770 < pg.mouse.get_pos()[0] < 820 and 185 < pg.mouse.get_pos()[1] < 210:
-                    map_of_world()
+                    map_of_world(input_text)
 
         keys = pg.key.get_pressed()
 
@@ -111,6 +147,7 @@ def how_to_play():
 
     while True:
         for event in pg.event.get():
+
             if event.type == pg.QUIT:
                 exit()
             if event.type == pg.MOUSEBUTTONDOWN:
@@ -127,11 +164,14 @@ class Rendering(pg.sprite.Sprite):
         self.name = name
         self.image = pg.transform.scale(pg.image.load(im), con_size)
         self.rect = self.image.get_rect().move(pos)
+        self.mask = pg.mask.from_surface(self.image)
 
     def update(self, *args):
+        local_pos = args[0].pos[0] - self.rect.x, args[0].pos[1] - self.rect.y
         if args and args[0].type == pg.MOUSEBUTTONDOWN and args[0].button == 1 and \
                 self.rect.collidepoint(args[0].pos):
-            print(self.name)
+            if self.mask.get_at(local_pos):
+                print(self.name)
 
 
 class Symptoms(pg.sprite.Sprite):
@@ -237,7 +277,11 @@ def moves():
     DNA(random.choice(destinations), 0, dna_group)
 
 
-def map_of_world():
+def map_of_world(a):
+    con = sqlite3.connect("result.db")
+    cur = con.cursor()
+    cur.execute("""INSERT INTO point(name) VALUES(?)""", (a,))
+    con.commit()
     pg.time.set_timer(aircraft_fly_event, 13000)
 
     background_image = pg.image.load('world_map_without_background.png')
@@ -260,8 +304,8 @@ def map_of_world():
             if event.type == pg.MOUSEBUTTONDOWN:
                 if 0 < pg.mouse.get_pos()[0] < 200 and 550 < pg.mouse.get_pos()[1] < 590:
                     map_of_symptoms()
-            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
-                pass
+            if event.type == pg.MOUSEBUTTONDOWN:
+                countries_group.update(event)
 
             if event.type == aircraft_fly_event:
                 for air in aircraft_group:
@@ -307,8 +351,15 @@ def map_of_symptoms():
     pg.draw.rect(screen, 'white', (0, 550, 150, 40))
     pg.draw.rect(screen, 'black', (785, 20, 200, 540))
     f1 = pg.font.Font(None, 32)
+    f2 = pg.font.SysFont('impact', 22)
+    f3 = pg.font.Font(None, 22)
     text = f1.render('Карта мира', True, (0, 0, 0))
+    text2 = f2.render('Выберите симптом', True, 'white')
+    text3 = f3.render('Используйте очки ДНК,'
+                      'чтобы менять симптомы болезьни!', True, 'white')
+    screen.blit(text2, (787, 30))
     screen.blit(text, (15, 558))
+    screen.blit(text3, (787, 90))
     for i in symptoms:
         if list_of_buy[i[3]] == 1:
             Symptoms(*i, symptoms_group)
@@ -446,15 +497,20 @@ count_people = {'Австралия': ['22 685 143'], 'Новая Зеланди
                 'Бразилия': ['213 317 639'],
                 'Перу': ['34 294 231'], 'Боливия': ['11 639 909'], 'Аргентина': ['44 938 742'],
                 'Южная Африка': ['60 142 978'],
-                'Ботсвана': ['2 380 250'], 'Зимбабве': ['14 862 927'], 'Вост. Африка': ['433 904 943'], 'Ангола': [],
-                'Судан': [''], 'Египет': [''], 'Ливия': [''], 'Цент. Африка': [''], 'Запад. Африка': [''],
-                'Монако': [''], 'Алжир': [''], 'Китай': [''], 'Корея': [''], 'Россия': [''], 'Финляндия': [''],
-                'Швеция': [''], 'Норвегия': [''], 'Англия': [''], 'Испания': [''], 'Италия': [''], 'Франция': [''],
-                'Германия': [''], 'Балканы': [''], 'Цент. Европа': [''], 'Турция': [''], 'Прибалтика': [''],
-                'Польша': [''],
-                'Украина': [''], 'Сауд. Аравия': [''], 'Ближ. Восток': [''], 'Ирак': [''], 'Иран': [''],
-                'Пакистан': [''], 'Афганистан': [''],
-                'Казахстан': [''], 'Монголия': [''], 'Цент. Азия': ['']}
+                'Ботсвана': ['2 380 250'], 'Зимбабве': ['14 862 927'], 'Вост. Африка': ['433 904 943'],
+                'Ангола': ['31 127 674'],
+                'Судан': ['44 909 353'], 'Египет': ['100 223 850'], 'Ливия': ['5 700 000'],
+                'Цент. Африка': ['675 920 972'], 'Запад. Африка': ['347 098 777'],
+                'Монако': ['38 350'], 'Алжир': ['43 910 000'], 'Китай': ['1 442 965 000'], 'Корея': ['25 449 927'],
+                'Россия': ['145 975 300'], 'Финляндия': ['5 528 737'],
+                'Швеция': ['10 409 248'], 'Норвегия': ['5 391 369'], 'Англия': ['63 400 000'],
+                'Испания': ['47 394 223'], 'Италия': ['62 000 000'], 'Франция': ['67 413 000'],
+                'Германия': ['83 190 556'], 'Балканы': ['55 000 000'], 'Цент. Европа': ['2 000 000'],
+                'Турция': ['83 154 997'], 'Прибалтика': ['6 121 000'],
+                'Польша': ['38 228 100'],
+                'Украина': ['43 200 350'], 'Сауд. Аравия': ['27 345 986'], 'Ближ. Восток': ['312 008 700'], 'Ирак': ['37 056 169'], 'Иран': ['83 183 741'],
+                'Пакистан': ['207 774 520'], 'Афганистан': ['37 466 414'],
+                'Казахстан': ['19 082 467'], 'Монголия': ['3 353 470'], 'Цент. Азия': ['74 500 000']}
 destinations = [(98, 80), (273, 168), (167, 147), (201, 75), (213, 53), (294, 49), (349, 120), (336, 385), (268, 436),
                 (255, 465), (257, 523), (491, 72), (503, 434), (528, 430), (202, 247), (269, 199), (120, 269),
                 (151, 305), (194, 340), (215, 301), (230, 370), (273, 394), (522, 404), (554, 414), (559, 355),
