@@ -109,6 +109,10 @@ countries = {'Австралия': ['pictures/Austraalia/australia_0.png', '22 6
              'Цент. Азия': ['pictures/Central Asia/central_asia_0.png', '74 500 000', 0, (83.37, 62.142), (550, 206),
                             [(572, 227), (579, 244), (608, 249)]]}
 
+first = ''
+count = 0
+
+
 def start_screen():
     global screen
     background_image = pg.image.load('screensaver.jpeg')
@@ -169,6 +173,7 @@ class MyWidget(QMainWindow):
 
 
 def player_name():
+    global first
     background_image = pg.image.load('player_name.jpg')
     background_image = pg.transform.scale(background_image, size)
     screen.blit(background_image, (0, 0))
@@ -197,7 +202,7 @@ def player_name():
                 if 770 < pg.mouse.get_pos()[0] < 820 and 185 < pg.mouse.get_pos()[1] < 210:
                     first = choice_country()
                     countries[first][2] = 1
-                    print(countries[first])
+                    #  print(countries[first])
                     map_of_world(input_text)
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_RETURN:
@@ -260,6 +265,7 @@ def how_to_play():
                     start_screen()
             pg.display.set_caption('Как играть')
             pg.display.flip()
+
 
 def choice_country():
     a = ''
@@ -371,12 +377,14 @@ class Symptoms(pg.sprite.Sprite):
         self.rect = self.image.get_rect().move(pos)
         self.buy = False
 
-    def update(self, *args):
+    def update(self, *args):  # надо как-то отслеживать последний симптом /// решено уже
+        global count
         f1 = pg.font.Font(None, 70)
         f2 = pg.font.Font(None, 45)
         dog_surf = pg.image.load('dna_one.png')
         flip = pg.transform.scale(
             dog_surf, (100, 100))
+
         if args and args[0].type == pg.MOUSEBUTTONDOWN and \
                 self.rect.collidepoint(args[0].pos):
             pg.draw.rect(screen, 'black', (785, 200, 200, 200))
@@ -386,14 +394,17 @@ class Symptoms(pg.sprite.Sprite):
             pg.draw.rect(screen, 'white', (800, 350, 170, 40))
             text2 = f2.render('Купить', True, 'black')
             screen.blit(text2, (830, 357))
+            for _ in symptoms_group:
+                _.buy = False
             self.buy = True
         if args and args[0].type == pg.MOUSEBUTTONDOWN and self.buy:
-            print(self.im)
             if 785 < pg.mouse.get_pos()[0] < 985 and 200 < pg.mouse.get_pos()[1] < 400:
                 self.im = self.im[:-4] + '_1' + self.im[-4:]
                 self.image = pg.transform.scale(pg.image.load(self.im), (92, 80))
                 list_of_buy[self.ind] = 1
                 pg.draw.rect(screen, 'black', (785, 200, 200, 200))
+                count = count - self.neighbors[self.name.capitalize()][-1]
+                print(count)
                 for _ in self.neighbors[self.name.capitalize()][:-2]:
                     list_of_buy[_] = 1
                     Symptoms(*symptoms[_], symptoms_group)
@@ -452,25 +463,37 @@ class DNA(pg.sprite.Sprite):
             return 1
 
 
-def moves():
+def create_dna():
     ex = random.choice(list(countries.keys()))
     v = random.choice(countries[ex][-1])
     v = list(v)
-    v[0], v[1] = v[0] - 20, v[1] - 20
+    v[0], v[1] = v[0] - 20, v[1] - 40
     v = tuple(v)
-    DNA(v, 0, dna_group)
+    DNA(v, 1, dna_group)
 
 
-def make_new_fly():
+def make_new_fly(a=False):
+    t = False
     lis = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     choice = random.choice(lis)
-    if choice < 40:
+    if choice < 4:
         begin, end = random.sample(countries.keys(), 2)
         air_beg = random.choice(countries[begin][-1])
         air_end = random.choice(countries[end][-1])
         air = Aircraft(air_beg, aircraft_group)
         air.begin, air.end = begin, end
-
+        t = True
+    elif a:
+        air_beg = random.choice(countries[first][-1])
+        end = first
+        air_end = ()
+        while first == end:
+            end = random.choice(list(countries.keys()))
+        air_end = random.choice(countries[end][-1])
+        air = Aircraft(air_beg, aircraft_group)
+        air.begin, air.end = first, end
+        t = True
+    if t:
         if air_beg[0] > air_end[0] and air_beg[1] > air_end[1]:
             air.image = pg.transform.scale(pg.image.load('aircraft_lu.png'), (20, 20))
         elif air_beg[0] > air_end[0] and air_beg[1] < air_end[1]:
@@ -489,18 +512,25 @@ def make_new_fly():
 def infection(b, e):
     begin_inf, end_inf = countries[b][2], countries[e][2]
     if begin_inf and not end_inf:
-        DNA(e, 0, dna_group)
+        final = random.choice(countries[e][-1])
+        DNA(final, 0, dna_group)
         countries[e][2] = 1
     print(b, e)
     print(begin_inf, end_inf)
 
 
 def map_of_world(a=False):
+    global count
+
     con = sqlite3.connect("result.db")
     cur = con.cursor()
     # cur.execute("""INSERT INTO point(name) VALUES(?)""", (a,))
     con.commit()
-    pg.time.set_timer(aircraft_fly_event, 12000)
+    pg.time.set_timer(aircraft_fly_event, 1000)
+    make_new_fly(True)
+    make_new_fly(True)
+
+    countries[first][2] = 1
 
     background_image = pg.image.load('world_map_without_background.png')
     background_image = pg.transform.scale(background_image, size)
@@ -520,7 +550,6 @@ def map_of_world(a=False):
         con = [countries[country][4], country, countries[country][0], countries[country][3]]
         Countries(*con, countries_group)
 
-    count = 0
     while True:
         for event in pg.event.get():
             for i in dna_group:
@@ -532,7 +561,7 @@ def map_of_world(a=False):
                 exit()
             if event.type == pg.MOUSEBUTTONDOWN:
                 if 0 < pg.mouse.get_pos()[0] < 200 and 550 < pg.mouse.get_pos()[1] < 590:
-                    map_of_symptoms(count)
+                    map_of_symptoms()
             if event.type == pg.MOUSEBUTTONDOWN:
                 for _ in countries_group:
                     _.update(event)
@@ -545,7 +574,7 @@ def map_of_world(a=False):
                 make_new_fly()
 
             if event.type == DNA_event:
-                moves()
+                create_dna()
 
         aircraft_group.update()
         screen.fill((30, 30, 100))
@@ -573,12 +602,14 @@ def map_of_world(a=False):
         pg.display.flip()
 
 
-def map_of_symptoms(a):
-    f1 = pg.font.Font(None, 60)
-    text_dna = f1.render(f'-{a}', True, 'blue')
+def map_of_symptoms():
+    global count
     background_image = pg.image.load('map_of_symptoms.jpg')
     background_image = pg.transform.scale(background_image, size)
     screen.blit(background_image, (0, 0))
+
+    f1 = pg.font.Font(None, 60)
+    text_dna = f1.render(f'-{count}', True, 'blue')
     screen.blit(text_dna, (60, 17))
     pg.draw.rect(screen, 'grey', (0, 550, 155, 45))
     pg.draw.rect(screen, 'white', (0, 550, 150, 40))
@@ -599,7 +630,6 @@ def map_of_symptoms(a):
     for _ in symptoms:
         if list_of_buy[_[3]] == 1:
             Symptoms(*_, symptoms_group)
-
     while True:
         for event in pg.event.get():
             symptoms_group.update(event)
@@ -608,7 +638,10 @@ def map_of_symptoms(a):
             if event.type == pg.MOUSEBUTTONDOWN:
                 if 0 < pg.mouse.get_pos()[0] < 150 and 550 < pg.mouse.get_pos()[1] < 590:
                     map_of_world()
-
+        #screen.blit(background_image, (0, 0))
+        #f1 = pg.font.Font(None, 60)
+        #text_dna = f1.render(f'-{count}', True, 'blue')
+        #screen.blit(text_dna, (60, 17))
         pg.display.set_caption('Симптомы')
         symptoms_group.draw(screen)
         pg.display.flip()
@@ -659,7 +692,6 @@ symptoms = [[(664, 460), 'анемия', 'симптомы/анемия.png', 0]
             [(664, 220), 'некроз', 'симптомы/некроз.png', 30],
             [(664, 300), 'геморрагический шок', 'симптомы/геморрагический шок.png', 31]]
 
-
 airports = []
 for key in countries.keys():
     cic = countries[key][-1]
@@ -673,7 +705,9 @@ dna_group = pg.sprite.Group(DNA(random.choice(airports), 1), DNA(random.choice(a
 
 aircraft_group = pg.sprite.Group()
 
-aircraft_fly_event = pg.USEREVENT + 1
+dna1, dna2 = DNA(random.choice(airports), 1, dna_group), DNA(random.choice(airports), 0, dna_group)
+
+aircraft_fly_event = pg.USEREVENT + 2
 DNA_event = pg.USEREVENT + 1
 start_screen()
 
