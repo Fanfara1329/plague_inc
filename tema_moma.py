@@ -6,6 +6,9 @@ import sys
 from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem
+import time
+
+start_time = time.time()
 
 countries = {'Австралия': ['pictures/Austraalia/australia_0.png', '22 685 143', 0, (172.5, 135.8), (750, 410),
                            [(803, 469), (851, 453), (863, 511)], 2],
@@ -118,15 +121,22 @@ countries = {'Австралия': ['pictures/Austraalia/australia_0.png', '22 6
                             [(572, 227), (579, 244), (608, 249)], 3]}
 
 for key in countries.keys():
-    if len(countries[key][-2]) < 2:
-        c = countries[key][-2][0]
-        countries[key][-2] = [c, c]
+    if len(countries[key][-3]) < 2:
+        c = countries[key][-3][0]
+        countries[key][-3] = [c, c]
     countries[key][1] = countries[key][1].split()
     countries[key][1] = int(''.join(countries[key][1]))
+    lii = countries[key]
+    lii.append(0)
+    countries[key] = lii
+
+summa = 0
+for key in countries.keys():
+    summa += countries[key][1]
+print(summa)
 
 first = ''
 count = 0
-summa = 0
 
 
 def start_screen():
@@ -218,7 +228,6 @@ def player_name():
                 if 770 < pg.mouse.get_pos()[0] < 820 and 185 < pg.mouse.get_pos()[1] < 210:
                     first = choice_country()
                     countries[first][2] = 1
-                    #  print(countries[first])
                     map_of_world(input_text)
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_RETURN:
@@ -291,7 +300,8 @@ def choice_country():
     f1 = pg.font.Font(None, 32)
 
     for country in countries.keys():
-        con = [countries[country][4], country, countries[country][0], countries[country][3], countries[country][-1]]
+        con = [countries[country][4], country, countries[country][0], countries[country][3], countries[country][-2],
+               countries[country][-1]]
         Countries(*con, countries_group)
 
     a2 = ''
@@ -331,11 +341,11 @@ def choice_country():
 
 class Countries(pg.sprite.Sprite):
 
-    def __init__(self, pos, name, im, con_size, speed, *group):
+    def __init__(self, pos, name, im, con_size, speed, inf, *group):
         super().__init__(*group)
         self.plus = countries[name][2]
         self.speed = speed
-        self.infected = 0
+        self.infected = inf
         self.name = name
         self.size = con_size
         self.im = im
@@ -344,6 +354,7 @@ class Countries(pg.sprite.Sprite):
         self.mask = pg.mask.from_surface(self.image)
 
     def update(self, *args):
+        global summa
         local_pos = args[0].pos[0] - self.rect.x, args[0].pos[1] - self.rect.y
         if args and args[0].type == pg.MOUSEBUTTONDOWN and args[0].button == 1 and \
                 self.rect.collidepoint(args[0].pos):
@@ -427,7 +438,7 @@ class Symptoms(pg.sprite.Sprite):
                     pg.draw.rect(screen, 'black', (785, 200, 200, 200))
                     count = count - price
                     symptoms[self.ind][2] = self.im
-                    # appdate_speeds(price)
+                    appdate_speeds(price)
                     for _ in self.neighbors[self.name.capitalize()][:-2]:
                         list_of_buy[_] = 1
                         Symptoms(*symptoms[_], symptoms_group)
@@ -497,7 +508,7 @@ class DNA(pg.sprite.Sprite):
 
 def create_dna():
     ex = random.choice(list(countries.keys()))
-    v = random.choice(countries[ex][-2])
+    v = random.choice(countries[ex][-3])
     v = list(v)
     v[0], v[1] = v[0] - 20, v[1] - 40
     v = tuple(v)
@@ -511,18 +522,18 @@ def make_new_fly(a=False):
     choice = random.choice(lis)
     if choice < 2:
         begin, end = random.sample(countries.keys(), 2)
-        air_beg = random.choice(countries[begin][-2])
-        air_end = random.choice(countries[end][-2])
+        air_beg = random.choice(countries[begin][-3])
+        air_end = random.choice(countries[end][-3])
         air = Aircraft(air_beg, aircraft_group)
         air.begin, air.end = begin, end
         t = True
     elif a:
-        air_beg = random.choice(countries[first][-2])
+        air_beg = random.choice(countries[first][-3])
         end = first
         air_end = ()
         while first == end:
             end = random.choice(list(countries.keys()))
-        air_end = random.choice(countries[end][-2])
+        air_end = random.choice(countries[end][-3])
         air = Aircraft(air_beg, aircraft_group)
         air.begin, air.end = first, end
         t = True
@@ -545,13 +556,13 @@ def make_new_fly(a=False):
 def infection(b, e):
     begin_inf, end_inf = countries[b][2], countries[e][2]
     if begin_inf and not end_inf:
-        final = random.choice(countries[e][-2])
+        final = random.choice(countries[e][-3])
         DNA(final, 0, dna_group)
         countries[e][2] = 1
 
 
 def map_of_world(a=False):
-    global count, summa
+    global count
 
     con = sqlite3.connect("record.db")
     cur = con.cursor()
@@ -578,7 +589,9 @@ def map_of_world(a=False):
     pg.display.flip()
 
     for country in countries.keys():
-        con = [countries[country][4], country, countries[country][0], countries[country][3], countries[country][-1]]
+        con = [countries[country][4], country, countries[country][0], countries[country][3], countries[country][-2],
+               countries[country][-1]]
+
         Countries(*con, countries_group)
 
     while True:
@@ -682,14 +695,18 @@ def map_of_symptoms():
 
 
 def people():
-    global summa
     for country in countries_group:
         if countries[country.name][2] == 1:
-            # надо как-то преобразовать ы число
+            # написать в словарь и потом передать в инит при новом создании, для запоминания
             if country.infected + country.speed < countries[country.name][1]:
                 country.infected += country.speed
+                countries[country.name][-1] = country.infected
+    summa_inf = 0
     for _ in countries_group:
-        summa += _.infected
+        summa_inf += _.infected
+
+    if summa_inf / summa > 0.9:
+        exit()
 
 
 def appdate_speeds(cou):
@@ -744,19 +761,18 @@ symptoms = [[(664, 460), 'анемия', 'симптомы/анемия.png', 0]
 
 airports = []
 for key in countries.keys():
-    cic = countries[key][-2]
+    cic = countries[key][-3]
     for i in cic:
         airports.append(i)
 
 list_of_buy = [1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0]
 countries_group = pg.sprite.Group()
 symptoms_group = pg.sprite.Group()
-dna_group = pg.sprite.Group(DNA(random.choice(airports), 1), DNA(random.choice(airports), 0))
+dna_group = pg.sprite.Group(DNA(random.choice(airports), 1))
 
 aircraft_group = pg.sprite.Group()
 
-dna1, dna2 = DNA(random.choice(airports), 1, dna_group), DNA(random.choice(airports), 0, dna_group)
-
+dna1 = DNA(random.choice(airports), 1, dna_group)
 aircraft_fly_event = pg.USEREVENT + 2
 DNA_event = pg.USEREVENT + 1
 people_inf_event = pg.USEREVENT + 1
