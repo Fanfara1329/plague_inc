@@ -6,6 +6,9 @@ import sys
 from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem
+import time
+
+start_time = time.time()
 
 countries = {'Австралия': ['pictures/Austraalia/australia_0.png', '22 685 143', 0, (172.5, 135.8), (750, 410),
                            [(803, 469), (851, 453), (863, 511)], 2],
@@ -126,11 +129,14 @@ for key in countries.keys():
     lii = countries[key]
     lii.append(0)
     countries[key] = lii
-    print(countries[key])
+
+summa = 0
+for key in countries.keys():
+    summa += countries[key][1]
+print(summa)
 
 first = ''
 count = 0
-summa = 0
 
 
 def start_screen():
@@ -294,7 +300,8 @@ def choice_country():
     f1 = pg.font.Font(None, 32)
 
     for country in countries.keys():
-        con = [countries[country][4], country, countries[country][0], countries[country][3], countries[country][-2]]
+        con = [countries[country][4], country, countries[country][0], countries[country][3], countries[country][-2],
+               countries[country][-1]]
         Countries(*con, countries_group)
 
     a2 = ''
@@ -334,11 +341,11 @@ def choice_country():
 
 class Countries(pg.sprite.Sprite):
 
-    def __init__(self, pos, name, im, con_size, speed, *group):
+    def __init__(self, pos, name, im, con_size, speed, inf, *group):
         super().__init__(*group)
         self.plus = countries[name][2]
         self.speed = speed
-        self.infected = 0
+        self.infected = inf
         self.name = name
         self.size = con_size
         self.im = im
@@ -431,7 +438,7 @@ class Symptoms(pg.sprite.Sprite):
                     pg.draw.rect(screen, 'black', (785, 200, 200, 200))
                     count = count - price
                     symptoms[self.ind][2] = self.im
-                    # appdate_speeds(price)
+                    appdate_speeds(price)
                     for _ in self.neighbors[self.name.capitalize()][:-2]:
                         list_of_buy[_] = 1
                         Symptoms(*symptoms[_], symptoms_group)
@@ -581,7 +588,9 @@ def map_of_world(a=False):
     pg.display.flip()
 
     for country in countries.keys():
-        con = [countries[country][4], country, countries[country][0], countries[country][3], countries[country][-2]]
+        con = [countries[country][4], country, countries[country][0], countries[country][3], countries[country][-2],
+               countries[country][-1]]
+
         Countries(*con, countries_group)
 
     while True:
@@ -685,17 +694,18 @@ def map_of_symptoms():
 
 
 def people():
-    global summa
     for country in countries_group:
         if countries[country.name][2] == 1:
-            # аписать в словарь и потом передать в инит при новом создании, для запоминания
+            # написать в словарь и потом передать в инит при новом создании, для запоминания
             if country.infected + country.speed < countries[country.name][1]:
                 country.infected += country.speed
-                countries[country.name][-1] = country.infected + country.speed
-    summa = 0
+                countries[country.name][-1] = country.infected
+    summa_inf = 0
     for _ in countries_group:
-        summa += _.infected
-    print(summa)
+        summa_inf += _.infected
+
+    if summa_inf / summa > 0.9:
+        exit()
 
 
 def appdate_speeds(cou):
@@ -761,8 +771,7 @@ dna_group = pg.sprite.Group(DNA(random.choice(airports), 1))
 
 aircraft_group = pg.sprite.Group()
 
-dna1, dna2 = DNA(random.choice(airports), 1, dna_group), DNA(random.choice(airports), 0, dna_group)
-
+dna1 = DNA(random.choice(airports), 1, dna_group)
 aircraft_fly_event = pg.USEREVENT + 2
 DNA_event = pg.USEREVENT + 1
 people_inf_event = pg.USEREVENT + 1
