@@ -2,13 +2,11 @@ import pygame as pg
 import random
 import sqlite3
 import sys
+import time
 
 from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem
-import time
-
-start_time = time.time()
 
 countries = {'Австралия': ['pictures/Austraalia/australia_0.png', '22 685 143', 0, (172.5, 135.8), (750, 410),
                            [(803, 469), (851, 453), (863, 511)], 2],
@@ -133,7 +131,6 @@ for key in countries.keys():
 summa = 0
 for key in countries.keys():
     summa += countries[key][1]
-print(summa)
 
 first = ''
 count = 0
@@ -203,6 +200,7 @@ def player_name():
     background_image = pg.image.load('player_name.jpg')
     background_image = pg.transform.scale(background_image, size)
     screen.blit(background_image, (0, 0))
+
     f1 = pg.font.Font(None, 60)
     f2 = pg.font.Font(None, 40)
     text = f1.render('Name your Plague', True, (255, 255, 255))
@@ -242,6 +240,7 @@ def player_name():
         text2 = f2.render(input_text, True, (255, 255, 255))
         pg.display.set_caption('Инициализация')
         screen.blit(background_image, (0, 0))
+
         screen.blit(text, (300, 48))
         screen.blit(text3, (770, 185))
         screen.blit(text2, (300, 188))
@@ -259,6 +258,7 @@ def how_to_play():
                   "          красные и желтые пузырьки.", "",
                   "          Наблюдайте за статистикой и процентом заражения. Вы выйграете если все умрут.",
                   "          Не дайте болезни убить всех зараженных, прежде чем заразите всех остальных."]
+
     background_image = pg.image.load('how_to_play.jpg')
     background_image = pg.transform.scale(background_image, size)
     screen.blit(background_image, (0, 0))
@@ -266,11 +266,13 @@ def how_to_play():
     f1 = pg.font.Font(None, 26)
     text = f1.render('Вернутся на главный экран', True, (255, 255, 255))
     screen.blit(text, (15, 558))
+
     pg.draw.rect(screen, 'black', (45, 75, 760, 60))
     pg.draw.rect(screen, 'black', (45, 150, 760, 60))
     pg.draw.rect(screen, 'black', (45, 225, 760, 85))
     pg.draw.rect(screen, 'black', (45, 325, 760, 60))
     text_coord = 30
+
     for line in intro_text:
         string_rendered = f1.render(line, True, pg.Color('white'))
         intro_rect = string_rendered.get_rect()
@@ -330,6 +332,7 @@ def choice_country():
             text_count = f1.render(str(b), True, 'white')
             screen.blit(text_name, (25, 460))
             screen.blit(text_count, (25, 500))
+
         confirm_text = f1.render('Подтвердить страну', True, 'red')
         screen.blit(text_error, (360, 560))
         screen.blit(confirm_text, (340, 530))
@@ -420,6 +423,7 @@ class Symptoms(pg.sprite.Sprite):
             price = self.neighbors[self.name.capitalize()][-1]
             pg.draw.rect(screen, 'black', (785, 200, 200, 200))
             text = f1.render(f'-{str(price)}', True, 'white')
+
             screen.blit(flip, (800, 240))
             screen.blit(text, (890, 260))
             pg.draw.rect(screen, 'white', (800, 350, 170, 40))
@@ -428,9 +432,11 @@ class Symptoms(pg.sprite.Sprite):
             for _ in symptoms_group:
                 _.buy = False
             self.buy = True
+
         if args and args[0].type == pg.MOUSEBUTTONDOWN and self.buy:
             if 785 < pg.mouse.get_pos()[0] < 985 and 200 < pg.mouse.get_pos()[1] < 400:
                 price = self.neighbors[self.name.capitalize()][-1]
+
                 if count - price > -1:
                     self.im = self.im[:-4] + '_1' + self.im[-4:]
                     self.image = pg.transform.scale(pg.image.load(self.im), (92, 80))
@@ -470,6 +476,7 @@ class Aircraft(pg.sprite.Sprite):
             for _ in countries_group:
                 if _.name == self.end:
                     begin_inf, end_inf = countries[self.begin][2], countries[_.name][2]
+
                     if begin_inf and not end_inf:
                         new = countries[_.name][0][:-5] + '1' + countries[_.name][0][-4:]
                         countries[_.name][0] = new
@@ -520,6 +527,7 @@ def make_new_fly(a=False):
     air_end, air_beg = (), ()
     lis = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     choice = random.choice(lis)
+
     if choice < 2:
         begin, end = random.sample(countries.keys(), 2)
         air_beg = random.choice(countries[begin][-3])
@@ -527,6 +535,7 @@ def make_new_fly(a=False):
         air = Aircraft(air_beg, aircraft_group)
         air.begin, air.end = begin, end
         t = True
+
     elif a:
         air_beg = random.choice(countries[first][-3])
         end = first
@@ -537,6 +546,7 @@ def make_new_fly(a=False):
         air = Aircraft(air_beg, aircraft_group)
         air.begin, air.end = first, end
         t = True
+
     if t:
         if air_beg[0] > air_end[0] and air_beg[1] > air_end[1]:
             air.image = pg.transform.scale(pg.image.load('aircraft_lu.png'), (20, 20))
@@ -624,6 +634,7 @@ def map_of_world(a=False):
         aircraft_group.update()
         screen.fill((30, 30, 100))
         screen.blit(background_image, (0, 0))
+
         if isinstance(a, str):
             text_name = f1.render(a, True, 'white')
             text_count = f1.render(str(b), True, 'white')
@@ -631,6 +642,7 @@ def map_of_world(a=False):
             screen.blit(text_name, (450, 576))
             screen.blit(text_count, (600, 576))
             screen.blit(text_infected, (330, 576))
+
         text_dna = f1.render(str(count), True, 'red')
         pg.draw.rect(screen, 'grey', (0, 550, 205, 45))
         pg.draw.rect(screen, 'white', (0, 550, 200, 40))
@@ -697,7 +709,6 @@ def map_of_symptoms():
 def people():
     for country in countries_group:
         if countries[country.name][2] == 1:
-            # написать в словарь и потом передать в инит при новом создании, для запоминания
             if country.infected + country.speed < countries[country.name][1]:
                 country.infected += country.speed
                 countries[country.name][-1] = country.infected
@@ -706,6 +717,7 @@ def people():
         summa_inf += _.infected
 
     if summa_inf / summa > 0.9:
+        time = time.time()
         exit()
 
 
