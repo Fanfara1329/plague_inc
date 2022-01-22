@@ -307,7 +307,7 @@ def choice_country():
         confirm_text = f1.render('Подтвердить страну', True, 'red')
         screen.blit(text_error, (360, 560))
         screen.blit(confirm_text, (340, 530))
-        button = pg.image.load('start.png')
+        button = pg.image.load('start.jpg')
         button = pg.transform.scale(button, (60, 60))
         screen.blit(button, (600, 510))
         pg.display.flip()
@@ -317,12 +317,16 @@ class Countries(pg.sprite.Sprite):
 
     def __init__(self, pos, name, im, con_size, *group):
         super().__init__(*group)
+        self.plus = countries[name][2]
         self.speed = 0
         self.infected = 0
         self.name = name
+        self.size = con_size
+        self.im = im
         self.image = pg.transform.scale(pg.image.load(im), con_size)
         self.rect = self.image.get_rect().move(pos)
         self.mask = pg.mask.from_surface(self.image)
+
 
     def update(self, *args):
         local_pos = args[0].pos[0] - self.rect.x, args[0].pos[1] - self.rect.y
@@ -434,6 +438,10 @@ class Aircraft(pg.sprite.Sprite):
             self.pos = self.target
             self.kill()
             infection(self.begin, self.end)
+            begin_inf, end_inf = countries[self.begin][2], countries[self.end][2]
+            if begin_inf == 1 and end_inf == 1:
+                countries[self.end][0] = countries[self.end][0][:-5] + '1' + countries[self.end][0][-4:]
+                print(countries[self.end][0])
 
         elif move_length != 0:
             move.normalize_ip()
@@ -517,6 +525,7 @@ def infection(b, e):
         countries[e][2] = 1
     print(b, e)
     print(begin_inf, end_inf)
+    print(countries[e])
 
 
 def map_of_world(a=False):
@@ -638,10 +647,10 @@ def map_of_symptoms():
             if event.type == pg.MOUSEBUTTONDOWN:
                 if 0 < pg.mouse.get_pos()[0] < 150 and 550 < pg.mouse.get_pos()[1] < 590:
                     map_of_world()
-        #screen.blit(background_image, (0, 0))
-        #f1 = pg.font.Font(None, 60)
-        #text_dna = f1.render(f'-{count}', True, 'blue')
-        #screen.blit(text_dna, (60, 17))
+        # screen.blit(background_image, (0, 0))
+        # f1 = pg.font.Font(None, 60)
+        # text_dna = f1.render(f'-{count}', True, 'blue')
+        # screen.blit(text_dna, (60, 17))
         pg.display.set_caption('Симптомы')
         symptoms_group.draw(screen)
         pg.display.flip()
