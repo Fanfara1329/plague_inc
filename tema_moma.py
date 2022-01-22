@@ -170,7 +170,7 @@ class MyWidget(QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi("UI1.ui", self)
-        self.con = sqlite3.connect("result.db")
+        self.con = sqlite3.connect("record.db")
         self.pushButton.clicked.connect(self.update_result)
         cur = self.con.cursor()
         result = cur.execute("SELECT * FROM point").fetchall()
@@ -519,6 +519,7 @@ def make_new_fly(a=False):
     elif a:
         air_beg = random.choice(countries[first][-2])
         end = first
+        air_end = ()
         while first == end:
             end = random.choice(list(countries.keys()))
         air_end = random.choice(countries[end][-2])
@@ -552,9 +553,9 @@ def infection(b, e):
 def map_of_world(a=False):
     global count, summa
 
-    con = sqlite3.connect("result.db")
+    con = sqlite3.connect("record.db")
     cur = con.cursor()
-    # cur.execute("""INSERT INTO point(name) VALUES(?)""", (a,))
+    cur.execute("""INSERT INTO point(name) VALUES(?)""", (a,))
     con.commit()
     pg.time.set_timer(aircraft_fly_event, 700)
     make_new_fly(True)
